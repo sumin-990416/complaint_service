@@ -1,0 +1,15 @@
+[project]
+name = "complaint-service"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncpg>=0.31.0",
+    "fastapi>=0.135.2",
+    "httpx>=0.28.1",
+    "psycopg2-binary>=2.9.11",
+    "pydantic-settings>=2.13.1",
+    "python-dotenv>=1.2.2",
+    "requests>=2.33.1",
+    "sqlalchemy>=2.0.48",
+    "uvicorn[standard]>=0.42.0",
+]
