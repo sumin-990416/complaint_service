@@ -3,6 +3,7 @@ name = "complaint-service"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "apscheduler>=3.11.2",
     "asyncpg>=0.31.0",
     "fastapi>=0.135.2",
     "httpx>=0.28.1",

@@ -8,43 +8,36 @@ export default {
   theme: {
     extend: {
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        background: '#F2F4F8',
+        surface:    '#FFFFFF',
+        foreground: '#0F172A',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: '#3B6EF8',
+          foreground: '#FFFFFF',
+          light: '#EEF2FF',
         },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
+        border:  '#E2E8F0',
+        input:   '#F8FAFC',
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT:    '#F1F5F9',
+          foreground: '#64748B',
         },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
-        },
-        card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
-        },
+        night:   '#EDE9FE',
+        weekend: '#DCFCE7',
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        xl2: '20px',
+        lg:  '14px',
+        md:  '10px',
+        sm:  '6px',
+      },
+      boxShadow: {
+        card:   '0 2px 12px 0 rgba(15,23,42,0.07)',
+        'card-hover': '0 6px 24px 0 rgba(15,23,42,0.13)',
       },
     },
   },
   plugins: [],
 }
+
 

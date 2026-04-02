@@ -4,8 +4,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.database import init_db
-from backend.routers import offices, realtime
+from backend.routers import offices, realtime, prediction, chatbot
 from backend.services.public_api import fetch_offices
+from backend.services.scheduler import start_scheduler, scheduler
 from backend import crud
 from backend.database import AsyncSessionLocal
 
@@ -19,7 +20,9 @@ async def lifespan(app: FastAPI):
         if not existing:
             items = await fetch_offices()
             await crud.upsert_offices(db, items)
+    start_scheduler()
     yield
+    scheduler.shutdown()
 
 
 app = FastAPI(
@@ -38,6 +41,8 @@ app.add_middleware(
 
 app.include_router(offices.router, prefix="/api")
 app.include_router(realtime.router, prefix="/api")
+app.include_router(prediction.router, prefix="/api")
+app.include_router(chatbot.router, prefix="/api")
 
 
 @app.get("/")

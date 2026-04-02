@@ -41,11 +41,8 @@ docker start complaint_pg
 프로젝트 루트(`/workspaces/complaint_service`)에서 실행합니다.
 
 ```bash
-# 가상환경 활성화
-source .venv/bin/activate
-
 # 서버 실행 (포트 8000)
-uvicorn backend.main:app --reload --port 8000
+uv run uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 > `backend/` 디렉터리 안에서 실행하면 모듈을 찾지 못합니다. 반드시 프로젝트 루트에서 실행하세요.
@@ -60,6 +57,23 @@ npm run dev -- --host 0.0.0.0 --port 5173
 
 브라우저에서 `http://localhost:5173` 으로 접속합니다.  
 GitHub Codespaces 환경이라면 자동 포워딩된 URL로 접속하세요.
+
+### Codespaces 공유 주의사항
+
+다른 사람이 `app.github.dev` 주소로 접속해야 한다면 다음을 확인해야 합니다.
+
+```text
+- 프론트 포트 5173이 0.0.0.0 으로 실행 중인지
+- Ports 탭에서 5173 포트 Visibility 가 Public 또는 Organization 인지
+- Codespace 가 살아 있는 상태인지
+```
+
+예시 URL 형식은 아래와 같습니다.
+
+```text
+https://<codespace-name>-5173.app.github.dev
+https://<codespace-name>-8000.app.github.dev
+```
 
 ## API 테스트 실행
 
@@ -82,3 +96,17 @@ uv run api_test.py --endpoint cso_realtime_v2
 ```bash
 uv run api_test.py --service-key-mode encoded
 ```
+
+## 문서형 RAG
+
+챗봇은 docs/민원업무편람(2026).hwpx 문서를 직접 읽어 관련 서류, 신청방법, 처리절차를 참고합니다.
+
+동작 방식은 아래와 같습니다.
+
+```text
+- HWPX 내부 Preview/PrvText.txt 를 읽어 텍스트 청크를 생성
+- 사용자 질문과 카테고리를 기준으로 관련 청크를 검색
+- 검색된 문단을 OpenRouter 프롬프트에 함께 전달
+```
+
+문서를 교체한 경우에는 백엔드를 다시 실행하면 최신 내용으로 다시 로드됩니다.

@@ -1,6 +1,4 @@
 <script setup>
-import UiCard from './ui/Card.vue'
-import UiBadge from './ui/Badge.vue'
 import { Users } from 'lucide-vue-next'
 
 defineProps({ item: { type: Object, required: true } })
@@ -13,24 +11,24 @@ function waitLevel(cnt) {
 }
 
 const levelConfig = {
-  free: { variant: 'success', label: '여유', countClass: 'text-emerald-600' },
-  mild: { variant: 'warning', label: '보통', countClass: 'text-amber-600' },
-  busy: { variant: 'destructive', label: '혼잡', countClass: 'text-red-500' },
+  free: { label: '여유', color: 'bg-emerald-50 text-emerald-600', countClass: 'text-emerald-500' },
+  mild: { label: '보통', color: 'bg-amber-50 text-amber-600', countClass: 'text-amber-500' },
+  busy: { label: '혼잡', color: 'bg-red-50 text-red-500', countClass: 'text-red-500' },
 }
 </script>
 
 <template>
-  <UiCard class="p-4">
+  <div class="rounded-[22px] border border-white/70 bg-white p-4 shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
     <div class="flex items-start justify-between mb-3">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+        <div class="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
           <Users class="w-4 h-4 text-primary" />
         </div>
         <span class="font-semibold text-sm text-foreground">{{ item.task_nm }}</span>
       </div>
-      <UiBadge :variant="levelConfig[waitLevel(item.wtng_cnt)].variant">
+      <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" :class="levelConfig[waitLevel(item.wtng_cnt)].color">
         {{ levelConfig[waitLevel(item.wtng_cnt)].label }}
-      </UiBadge>
+      </span>
     </div>
 
     <div class="flex items-end justify-between">
@@ -39,12 +37,11 @@ const levelConfig = {
         <span class="text-base font-bold text-foreground">{{ item.clot_no || '—' }}</span>
       </div>
       <div class="flex items-baseline gap-1">
-        <span
-          class="text-4xl font-black leading-none"
-          :class="levelConfig[waitLevel(item.wtng_cnt)].countClass"
-        >{{ item.wtng_cnt }}</span>
+        <span class="text-4xl font-black leading-none" :class="levelConfig[waitLevel(item.wtng_cnt)].countClass">
+          {{ item.wtng_cnt }}
+        </span>
         <span class="text-sm text-muted-foreground font-medium">명 대기</span>
       </div>
     </div>
-  </UiCard>
+  </div>
 </template>

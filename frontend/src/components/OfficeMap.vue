@@ -5,6 +5,7 @@ const props = defineProps({
   offices: { type: Array, default: () => [] },
   userPos: { type: Object, default: null }, // { lat, lng }
   height: { type: String, default: '45vh' },
+  zoomLevel: { type: Number, default: 4 },
 })
 
 const emit = defineEmits(['officeClick'])
@@ -112,7 +113,7 @@ watch(() => props.userPos, (pos) => {
   if (!map) return
   if (pos) {
     map.setCenter(new window.kakao.maps.LatLng(pos.lat, pos.lng))
-    map.setLevel(5)
+    map.setLevel(props.zoomLevel)
     placeUserMarker(pos.lat, pos.lng)
   } else if (userOverlay) {
     userOverlay.setMap(null)
@@ -141,7 +142,7 @@ onMounted(async () => {
     await nextTick()
     const lat = props.userPos?.lat ?? 36.5
     const lng = props.userPos?.lng ?? 127.5
-    const level = props.userPos ? 5 : 8
+    const level = props.userPos ? props.zoomLevel : 8
     initMap(lat, lng, level)
     renderMarkers()
     if (props.userPos) {
@@ -161,7 +162,7 @@ onMounted(async () => {
     <div ref="mapEl" class="w-full h-full"></div>
     <div
       v-if="mapError"
-      class="absolute inset-0 flex items-center justify-center bg-muted text-sm text-destructive p-4 text-center"
+      class="absolute inset-0 flex items-center justify-center bg-slate-100 text-sm text-destructive p-4 text-center"
     >
       ⚠️ {{ mapError }}
     </div>
