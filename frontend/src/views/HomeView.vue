@@ -7,6 +7,8 @@ import AddressSearch from '../components/AddressSearch.vue'
 import OfficeMap from '../components/OfficeMap.vue'
 import OfficeCard from '../components/OfficeCard.vue'
 
+const KAKAO_KEY = import.meta.env.VITE_KAKAO_MAPS_KEY
+
 const router = useRouter()
 const mapRef = ref(null)
 const showNearbyModal = ref(false)
@@ -26,10 +28,39 @@ const CATEGORIES = [
 const offices = ref([])
 const userPos = ref(null)
 const userLocationLabel = ref('')
-const locationStatus = ref('loading') // 'loading' | 'granted' | 'denied'
+const locationStatus = ref('loading')
 const searchLoading = ref(false)
 const searchError = ref('')
-const NEARBY_RADIUS_KM = 20
+const RADIUS_OPTIONS = [1, 5, 10, 20]
+const NEARBY_RADIUS_KM = ref(5)
+const showRadiusModal = ref(false)
+const pendingRadius = ref(5)
+
+function openNearbyModal() {
+  showNearbyModal.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+function closeNearbyModal() {
+  showNearbyModal.value = false
+  document.body.style.overflow = ''
+}
+
+function openRadiusModal() {
+  pendingRadius.value = NEARBY_RADIUS_KM.value
+  showRadiusModal.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+function closeRadiusModal() {
+  showRadiusModal.value = false
+  document.body.style.overflow = ''
+}
+
+function applyRadius() {
+  NEARBY_RADIUS_KM.value = pendingRadius.value
+  closeRadiusModal()
+}
 
 function saveUserPos(pos) {
   if (!pos) return
@@ -70,6 +101,35 @@ function haversine(lat1, lon1, lat2, lon2) {
       Math.cos((lat2 * Math.PI) / 180) *
       Math.sin(dLon / 2) ** 2
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+function loadKakaoSdk() {
+  if (window.kakao?.maps?.services) return Promise.resolve()
+  return new Promise((resolve) => {
+    if (!KAKAO_KEY) {
+      resolve()
+      return
+    }
+    if (document.querySelector('script[src*="dapi.kakao.com"]')) {
+      const timer = setInterval(() => {
+        if (window.kakao?.maps?.services) {
+          clearInterval(timer)
+          resolve()
+        }
+      }, 100)
+      setTimeout(() => {
+        clearInterval(timer)
+        resolve()
+      }, 5000)
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&libraries=services&autoload=false`
+    script.onload = () => window.kakao.maps.load(resolve)
+    script.onerror = resolve
+    document.head.appendChild(script)
+  })
 }
 
 async function waitForKakaoServices() {
@@ -116,44 +176,26 @@ async function updateUserLocationLabel(pos) {
 }
 
 const nearbyOffices = computed(() => {
-  if (!offices.value.length) return []
-  const mapped = offices.value
-    .filter(o => o.lat && o.lot)
-    .map(o => ({
-      ...o,
-      dist: userPos.value
-        ? haversine(userPos.value.lat, userPos.value.lng, o.lat, o.lot)
-        : null,
+  if (!offices.value.length || !userPos.value) return []
+
+  return offices.value
+    .filter(office => office.lat && office.lot)
+    .map(office => ({
+      ...office,
+      dist: haversine(userPos.value.lat, userPos.value.lng, office.lat, office.lot),
     }))
-
-  if (!userPos.value) return []
-
-  return mapped
-    .filter(o => o.dist != null && o.dist <= NEARBY_RADIUS_KM)
+    .filter(office => office.dist <= NEARBY_RADIUS_KM.value)
     .sort((a, b) => (a.dist ?? Infinity) - (b.dist ?? Infinity))
 })
 
 const mapOffices = computed(() => {
   if (userPos.value) return nearbyOffices.value
-  return offices.value.filter(o => o.lat && o.lot)
+  return offices.value.filter(office => office.lat && office.lot)
 })
 
 const officeCountLabel = computed(() => {
   if (userPos.value) return `${nearbyOffices.value.length}곳`
   return `${offices.value.length}곳`
-})
-
-const sortedOffices = computed(() => {
-  if (!offices.value.length) return []
-  return offices.value
-    .filter(o => o.lat && o.lot)
-    .map(o => ({
-      ...o,
-      dist: userPos.value
-        ? haversine(userPos.value.lat, userPos.value.lng, o.lat, o.lot)
-        : null,
-    }))
-    .sort((a, b) => (a.dist ?? Infinity) - (b.dist ?? Infinity))
 })
 
 const heroStatus = computed(() => {
@@ -166,7 +208,7 @@ const heroStatus = computed(() => {
   if (userPos.value) {
     return {
       dot: 'bg-emerald-400',
-      text: `현재 위치 기준 ${NEARBY_RADIUS_KM}km 이내 민원실만 보여줘요`,
+      text: `현재 위치 기준 ${NEARBY_RADIUS_KM.value}km 이내 민원실만 보여줘요`,
     }
   }
   return {
@@ -174,8 +216,6 @@ const heroStatus = computed(() => {
     text: '지역을 검색하면 가까운 민원실을 바로 찾아드려요',
   }
 })
-
-const topOffice = computed(() => nearbyOffices.value[0] ?? null)
 
 const currentLocationText = computed(() => {
   if (!userPos.value) return '현재 위치 정보 없음'
@@ -192,21 +232,18 @@ async function handleSearch(query) {
     locationStatus.value = 'granted'
     saveUserPos(pos)
     await updateUserLocationLabel(pos)
-  } catch (e) {
-    searchError.value = e.message
+    if (!userLocationLabel.value) userLocationLabel.value = query
+  } catch (error) {
+    searchError.value = error.message
   } finally {
     searchLoading.value = false
   }
 }
 
 function handleOfficeSelect(office) {
-  showNearbyModal.value = false
+  closeNearbyModal()
   mapRef.value?.flyTo(office.lat, office.lot, 3)
   router.push(`/office/${office.cso_sn}`)
-}
-
-function openChatRecommendation() {
-  router.push('/chat')
 }
 
 function requestGeolocation() {
@@ -227,11 +264,12 @@ function requestGeolocation() {
 }
 
 onMounted(async () => {
+  loadKakaoSdk()
   offices.value = await fetchOffices()
   restoreCategory()
   const restored = restoreUserPos()
   if (restored) updateUserLocationLabel(userPos.value)
-  if (!restored && navigator.geolocation) requestGeolocation()
+  if (navigator.geolocation) requestGeolocation()
   else if (!restored) locationStatus.value = 'denied'
 })
 </script>
@@ -244,19 +282,15 @@ onMounted(async () => {
 
       <AppHeader title="민원나우" />
 
-      <div class="relative page-gutter pt-2 pb-10">
+      <div class="relative page-gutter pt-2 pb-12">
         <div class="mt-1 flex items-end gap-2.5">
-          <h1 class="brand-display hero-brand text-white drop-shadow-[0_10px_30px_rgba(15,23,42,0.45)]">
-            민원나우
-          </h1>
-          <span class="mb-1 inline-flex items-center rounded-full bg-[#7dd3fc]/18 px-2.5 py-1 text-[11px] font-semibold text-sky-200 ring-1 ring-inset ring-white/10">
-            Beta
-          </span>
+          <h1 class="brand-display hero-brand text-white drop-shadow-[0_10px_30px_rgba(15,23,42,0.45)]">민원나우</h1>
+          <span class="mb-1 inline-flex items-center rounded-full bg-[#7dd3fc]/18 px-2.5 py-1 text-[11px] font-semibold text-sky-200 ring-1 ring-inset ring-white/10">Beta</span>
         </div>
 
         <div class="mt-3 flex items-center gap-2 flex-wrap">
           <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-            <span class="w-2 h-2 rounded-full" :class="heroStatus.dot"></span>
+            <span class="h-2 w-2 rounded-full" :class="heroStatus.dot"></span>
             {{ heroStatus.text }}
           </span>
           <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
@@ -265,50 +299,57 @@ onMounted(async () => {
           </span>
         </div>
 
-        <div class="mt-4 space-y-3">
-          <div class="rounded-[24px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-            <div class="rounded-[18px] border border-white/10 bg-white/8 px-4 py-3 text-white/90">
-              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Step 1</p>
-              <div class="mt-2 flex flex-wrap gap-2">
-                <button
-                  v-for="category in CATEGORIES"
-                  :key="category"
-                  class="tap-feedback rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors"
-                  :class="selectedCategory === category
-                    ? 'bg-white text-slate-950 shadow-[0_6px_18px_rgba(255,255,255,0.16)]'
-                    : 'bg-white/10 text-white/78 hover:bg-white/18 active:bg-white/20'"
-                  @click="saveCategory(category)"
-                >
-                  {{ category }}
-                </button>
-              </div>
-              <p class="mt-2 text-xs text-white/62">
-                먼저 민원 종류를 고르면, 이후 AI 안내와 추천이 그 기준을 이어받습니다.
-              </p>
+        <div class="mt-5 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+          <div class="rounded-[16px] border border-white/10 bg-white/8 px-4 py-3 text-white/90">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">Step 1 · 민원 종류</p>
+            <div class="mt-2.5 flex flex-wrap gap-2">
+              <button
+                v-for="category in CATEGORIES"
+                :key="category"
+                class="tap-feedback rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors"
+                :class="selectedCategory === category
+                  ? 'bg-white text-slate-950 shadow-[0_6px_18px_rgba(255,255,255,0.16)]'
+                  : 'bg-white/10 text-white/78 hover:bg-white/18 active:bg-white/20'"
+                @click="saveCategory(category)"
+              >
+                {{ category }}
+              </button>
             </div>
           </div>
+        </div>
 
-          <div class="rounded-[24px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-            <div class="rounded-[18px] bg-white/96 p-1.5">
-              <AddressSearch
-                :loading="searchLoading"
-                :error="searchError"
-                @search="handleSearch"
-                @locate="requestGeolocation"
-              />
-            </div>
+        <div class="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+          <div class="rounded-[16px] bg-white/96 p-1.5">
+            <AddressSearch
+              :loading="searchLoading"
+              :error="searchError"
+              @search="handleSearch"
+              @locate="requestGeolocation"
+            />
           </div>
         </div>
       </div>
     </section>
 
-    <section class="relative -mt-6 page-gutter z-10">
-      <div class="mb-3 rounded-[20px] border border-slate-200/70 bg-white/90 px-4 py-3 shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/60">Step 2</p>
-        <p class="mt-1 text-sm font-semibold text-foreground">현재 위치 기준으로 가까운 민원실을 확인하세요</p>
-        <p class="mt-1 text-xs leading-5 text-muted-foreground">
-          지도에서 주변 민원실을 보고, 추천 시작점에서 가장 먼저 확인할 곳을 바로 찾을 수 있습니다.
-        </p>
+    <section class="relative z-10 -mt-6 page-gutter space-y-3">
+      <div class="rounded-[20px] border border-slate-200/70 bg-white/90 px-4 py-3 shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/60">Step 3 · 민원실 찾기</p>
+            <p class="mt-0.5 text-sm font-semibold text-foreground">주변 민원실을 지도에서 확인하세요</p>
+          </div>
+          <div v-if="userPos" class="flex shrink-0 items-center gap-2">
+            <span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-semibold text-slate-700">
+              반경 {{ NEARBY_RADIUS_KM }}km
+            </span>
+            <button
+              class="tap-feedback inline-flex items-center rounded-full border border-primary/20 bg-primary-light px-3 py-1.5 text-[11px] font-semibold text-primary"
+              @click="openRadiusModal"
+            >
+              변경하기
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="overflow-hidden rounded-[26px] border border-white/70 bg-white shadow-[0_20px_70px_rgba(15,23,42,0.16)]">
@@ -318,64 +359,58 @@ onMounted(async () => {
             :offices="mapOffices"
             :user-pos="userPos"
             height="var(--home-map-height)"
-            :zoom-level="4"
+            :zoom-level="6"
             @office-click="handleOfficeSelect"
           />
           <div class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/18 to-transparent"></div>
-          <button
-            class="tap-feedback absolute bottom-4 right-4 inline-flex items-center rounded-full bg-white/95 px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.24)] backdrop-blur"
-            @click="showNearbyModal = true"
-          >
-            가까운 민원실
-          </button>
         </div>
-        <div v-else class="px-5 py-4 bg-[linear-gradient(135deg,#eef4ff_0%,#f8fafc_60%,#ffffff_100%)]">
-          <p class="text-xs font-semibold tracking-[0.18em] text-primary/70 uppercase">Location Setup</p>
-          <h2 class="mt-2 text-base font-bold text-foreground">위치를 찾거나 지역을 검색하세요</h2>
+
+        <div v-else-if="locationStatus === 'denied'" class="bg-[linear-gradient(135deg,#fff7ed_0%,#fef3c7_60%,#ffffff_100%)] px-5 py-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-amber-600">위치 권한 필요</p>
+          <h2 class="mt-1.5 text-base font-bold text-foreground">위치 접근이 차단되어 있어요</h2>
           <p class="mt-1 text-sm leading-5 text-muted-foreground">
-            위치 권한을 허용하거나 원하는 지역을 검색하면 주변 민원실을 지도와 리스트에 함께 보여드립니다.
+            주소창 옆 <strong>자물쇠(🔒)</strong>를 탭해 <strong>위치 → 허용</strong>으로 바꾼 뒤 다시 시도해 주세요.
+          </p>
+          <button
+            class="tap-feedback mt-3 inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white shadow-sm"
+            @click="requestGeolocation"
+          >다시 위치 요청하기</button>
+        </div>
+
+        <div v-else class="bg-[linear-gradient(135deg,#eef4ff_0%,#f8fafc_60%,#ffffff_100%)] px-5 py-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">위치 미설정</p>
+          <h2 class="mt-1.5 text-base font-bold text-foreground">위치를 허용하거나 지역을 검색하세요</h2>
+          <p class="mt-1 text-sm leading-5 text-muted-foreground">
+            위치 권한을 허용하면 주변 민원실을 바로 찾고, 검색한 지역도 즉시 지도에 반영합니다.
           </p>
         </div>
 
-        <div class="border-t border-slate-100 px-4 py-3 bg-white">
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="pt-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">추천 시작점</p>
-              <p class="mt-1 text-[11px] leading-5 text-muted-foreground break-keep">
-                {{ currentLocationText }}
-              </p>
-            </div>
-            <div class="flex shrink-0 flex-wrap justify-end gap-2">
-              <button
-                class="tap-feedback inline-flex min-h-9 items-center rounded-full bg-primary-light px-3.5 py-2 text-[12px] font-semibold text-primary"
-                @click="showNearbyModal = true"
-              >
-                가까운 민원실 보기
-              </button>
-            </div>
-          </div>
-          <div class="mt-2 min-w-0">
-            <p class="mt-1 text-sm font-semibold leading-6 text-foreground break-keep">
-              {{ selectedCategory === '전체' ? '통합으로 안내 준비됨' : `${selectedCategory} 기준으로 안내 준비됨` }}
+        <div class="flex items-center justify-between gap-3 border-t border-slate-100 bg-white px-4 py-3">
+          <div class="min-w-0">
+            <p class="text-[11px] font-semibold text-muted-foreground">
+              {{ selectedCategory === '전체' ? '통합 기준' : `${selectedCategory} 기준` }}
             </p>
-            <p v-if="selectedCategory !== '전체'" class="mt-1 text-[11px] leading-5 text-muted-foreground break-keep">
-              위치 추천 전 선택한 민원 기준을 먼저 반영합니다.
+            <p class="mt-0.5 truncate text-[11px] leading-5 text-muted-foreground">
+              {{ currentLocationText }}
             </p>
           </div>
+          <button
+            class="tap-feedback inline-flex min-h-9 shrink-0 items-center rounded-full bg-primary px-4 py-2 text-[12px] font-semibold text-white shadow-sm"
+            @click="openNearbyModal"
+          >민원실 목록</button>
         </div>
       </div>
     </section>
 
     <div
       v-if="showNearbyModal"
-      class="absolute inset-0 z-[80] flex items-end bg-slate-950/38 backdrop-blur-[2px]"
-      @click.self="showNearbyModal = false"
+      class="fixed inset-0 z-[80] flex items-end bg-slate-950/38 backdrop-blur-[2px]"
+      @click.self="closeNearbyModal"
     >
-      <section class="w-full rounded-t-[30px] bg-white shadow-[0_-20px_60px_rgba(15,23,42,0.18)] max-h-[72dvh] pb-[max(16px,env(safe-area-inset-bottom))]">
-        <div class="flex justify-center pt-3 pb-2">
+      <section class="max-h-[72dvh] w-full rounded-t-[30px] bg-white pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]">
+        <div class="flex justify-center pb-2 pt-3">
           <div class="h-1.5 w-14 rounded-full bg-slate-200"></div>
         </div>
-
         <div class="flex items-center justify-between px-5 pb-3">
           <div>
             <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/60">Nearby Offices</p>
@@ -383,36 +418,109 @@ onMounted(async () => {
           </div>
           <button
             class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-700"
-            @click="showNearbyModal = false"
-          >
-            닫기
-          </button>
+            @click="closeNearbyModal"
+          >닫기</button>
         </div>
 
         <div v-if="!userPos" class="px-5 py-8 text-center text-sm text-muted-foreground">
           위치를 찾거나 지역을 검색하면 가까운 민원실 목록이 나타납니다.
         </div>
-
         <div v-else-if="!nearbyOffices.length" class="px-5 py-8 text-center text-sm text-muted-foreground">
-          현재 위치 기준 {{ NEARBY_RADIUS_KM }}km 이내에 표시할 민원실이 없습니다.
+          현재 위치 기준 {{ NEARBY_RADIUS_KM }}km 이내에 표시할 민원실이 없습니다. 반경을 넓혀보세요.
         </div>
-
-        <ul v-else class="touch-scroll max-h-[54dvh] px-4 pb-2 flex flex-col gap-2.5">
+        <ul v-else class="touch-scroll flex max-h-[54dvh] flex-col gap-2.5 px-4 pb-2">
           <OfficeCard
-            v-for="o in nearbyOffices"
-            :key="o.cso_sn"
-            :office="o"
+            v-for="office in nearbyOffices"
+            :key="office.cso_sn"
+            :office="office"
             @select="handleOfficeSelect"
           />
         </ul>
       </section>
     </div>
+
+    <Teleport to="body">
+      <Transition name="radius-backdrop">
+        <div
+          v-if="showRadiusModal"
+          class="fixed inset-0 z-[200] flex items-end bg-slate-950/40 backdrop-blur-[2px]"
+          @click.self="closeRadiusModal"
+        >
+          <Transition name="radius-sheet" appear>
+            <div class="w-full rounded-t-[28px] bg-white pb-[max(24px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]">
+              <div class="flex justify-center pb-1 pt-3">
+                <div class="h-1.5 w-14 rounded-full bg-slate-200"></div>
+              </div>
+              <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+                <h3 class="text-base font-bold text-foreground">반경 설정</h3>
+                <button
+                  class="tap-feedback rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-700"
+                  @click="closeRadiusModal"
+                >닫기</button>
+              </div>
+
+              <div class="px-6 pb-4 pt-8">
+                <div class="relative flex items-center justify-between">
+                  <div class="absolute left-5 right-5 h-1.5 rounded-full bg-slate-200"></div>
+                  <div
+                    class="absolute left-5 h-1.5 rounded-full bg-rose-500"
+                    style="transition: width 0.35s cubic-bezier(0.34,1.56,0.64,1)"
+                    :style="{ width: `calc(${(RADIUS_OPTIONS.indexOf(pendingRadius) / (RADIUS_OPTIONS.length - 1)) * 100}% - ${RADIUS_OPTIONS.indexOf(pendingRadius) === 0 ? 0 : RADIUS_OPTIONS.indexOf(pendingRadius) === RADIUS_OPTIONS.length - 1 ? 40 : 20}px)` }"
+                  ></div>
+                  <button
+                    v-for="radius in RADIUS_OPTIONS"
+                    :key="radius"
+                    class="relative z-10 flex flex-col items-center"
+                    @click="pendingRadius = radius"
+                  >
+                    <span
+                      class="flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold shadow"
+                      style="transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1)"
+                      :class="pendingRadius === radius
+                        ? 'scale-125 bg-rose-500 text-white shadow-[0_6px_18px_rgba(239,68,68,0.45)]'
+                        : 'scale-100 border-2 border-slate-200 bg-white text-slate-500'"
+                    >
+                      {{ RADIUS_OPTIONS.indexOf(radius) + 1 }}
+                    </span>
+                  </button>
+                </div>
+
+                <div class="mt-3 flex items-center justify-between">
+                  <span
+                    v-for="radius in RADIUS_OPTIONS"
+                    :key="radius"
+                    class="w-11 text-center text-[12px] font-semibold"
+                    style="transition: color 0.2s"
+                    :class="pendingRadius === radius ? 'text-rose-500' : 'text-slate-400'"
+                  >{{ radius }}km</span>
+                </div>
+              </div>
+
+              <div class="px-5 pb-1">
+                <p class="mb-4 text-center text-sm text-muted-foreground">
+                  선택한 반경: <strong class="text-rose-500">{{ pendingRadius }}km</strong> 이내 민원실을 표시합니다
+                </p>
+                <button
+                  class="tap-feedback w-full rounded-2xl bg-rose-500 py-3.5 text-sm font-bold text-white shadow-[0_6px_18px_rgba(239,68,68,0.3)] transition-transform active:scale-[0.98]"
+                  @click="applyRadius"
+                >이 반경으로 적용하기</button>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <style scoped>
 .slide-down-enter-active, .slide-down-leave-active { transition: all 0.2s ease; }
 .slide-down-enter-from, .slide-down-leave-to { opacity: 0; transform: translateY(-8px); }
+
+.radius-backdrop-enter-active, .radius-backdrop-leave-active { transition: opacity 0.25s ease; }
+.radius-backdrop-enter-from, .radius-backdrop-leave-to { opacity: 0; }
+
+.radius-sheet-enter-active { transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.radius-sheet-leave-active { transition: transform 0.22s ease-in; }
+.radius-sheet-enter-from, .radius-sheet-leave-to { transform: translateY(100%); }
 </style>
-
-

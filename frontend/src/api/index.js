@@ -32,16 +32,9 @@ export async function geocodeAddress(query) {
     geocoder.addressSearch(query, (result, status) => {
       if (status === window.kakao.maps.services.Status.OK && result.length) {
         resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) })
-        return
+      } else {
+        reject(new Error('정확한 지역명(주소)을 입력해주세요'))
       }
-      const places = new window.kakao.maps.services.Places()
-      places.keywordSearch(query, (result2, status2) => {
-        if (status2 === window.kakao.maps.services.Status.OK && result2.length) {
-          resolve({ lat: parseFloat(result2[0].y), lng: parseFloat(result2[0].x) })
-        } else {
-          reject(new Error('검색 결과가 없습니다'))
-        }
-      })
     })
   })
 }

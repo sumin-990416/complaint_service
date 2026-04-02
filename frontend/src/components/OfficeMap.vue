@@ -52,6 +52,8 @@ function initMap(lat, lng, level) {
   map = new window.kakao.maps.Map(mapEl.value, {
     center: new window.kakao.maps.LatLng(lat, lng),
     level,
+    draggable: false,
+    scrollwheel: false,
   })
 }
 
@@ -103,6 +105,20 @@ function placeUserMarker(lat, lng) {
 function flyTo(lat, lng, level = 4) {
   map?.setCenter(new window.kakao.maps.LatLng(lat, lng))
   map?.setLevel(level)
+}
+
+const locked = ref(true)
+
+function toggleLock() {
+  locked.value = !locked.value
+  if (!map) return
+  if (locked.value) {
+    map.setDraggable(false)
+    map.setZoomable(false)
+  } else {
+    map.setDraggable(true)
+    map.setZoomable(true)
+  }
 }
 
 defineExpose({ flyTo })
@@ -166,5 +182,22 @@ onMounted(async () => {
     >
       ⚠️ {{ mapError }}
     </div>
+    <!-- 잠금 토글 버튼 -->
+    <button
+      class="absolute top-3 right-3 z-10 inline-flex items-center justify-center w-8 h-8 rounded-full shadow-[0_4px_12px_rgba(15,23,42,0.28)] backdrop-blur transition-colors"
+      :class="locked
+        ? 'bg-slate-950/75 text-white'
+        : 'bg-white text-slate-950'"
+      @click="toggleLock"
+    >
+      <svg v-if="locked" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 11V7a5 5 0 0 1 9.9-1"/>
+      </svg>
+    </button>
   </div>
 </template>
