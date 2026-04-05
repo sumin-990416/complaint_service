@@ -10,6 +10,14 @@ const props = defineProps({
 const phoneNumber = ref('')
 const phoneLookupDone = ref(false)
 
+function normalizeSpacing(text) {
+  return String(text ?? '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([,·~])\s*/g, ' $1 ')
+    .replace(/\s*([()])/g, '$1')
+    .trim()
+}
+
 async function waitForKakaoServices() {
   for (let i = 0; i < 30; i += 1) {
     if (window.kakao?.maps?.services) return true
@@ -131,17 +139,17 @@ watch(() => props.office?.cso_sn, loadPhoneNumber, { immediate: true })
       <span class="inline-flex items-center text-xs font-semibold px-3 py-1.5 rounded-full"
         :class="office.nght_oper_yn === 'Y' ? 'bg-violet-50 text-violet-600' : 'bg-muted text-muted-foreground'">
         <Moon class="w-3 h-3 mr-1" />
-        야간 {{ office.nght_oper_yn === 'Y' ? '운영' : '미운영' }}
+        {{ office.nght_oper_yn === 'Y' ? '야간 운영' : '야간 미운영' }}
       </span>
       <span class="inline-flex items-center text-xs font-semibold px-3 py-1.5 rounded-full"
         :class="office.wknd_oper_yn === 'Y' ? 'bg-emerald-50 text-emerald-600' : 'bg-muted text-muted-foreground'">
         <Calendar class="w-3 h-3 mr-1" />
-        주말 {{ office.wknd_oper_yn === 'Y' ? '운영' : '미운영' }}
+        {{ office.wknd_oper_yn === 'Y' ? '주말 운영' : '주말 미운영' }}
       </span>
     </div>
 
     <p v-if="office.nght_dow_expln" class="rounded-2xl bg-slate-50 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
-      {{ office.nght_dow_expln }}
+      {{ normalizeSpacing(office.nght_dow_expln) }}
     </p>
 
     <div class="pt-2">

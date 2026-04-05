@@ -34,6 +34,7 @@ const showModal = ref(false)
 const step = ref('sido')
 const selectedSido = ref('')
 const selectedSigungu = ref('')
+let bodyLockScrollY = 0
 
 const sigunguList = computed(() => REGIONS[selectedSido.value] ?? [])
 
@@ -46,12 +47,25 @@ const displayLabel = computed(() => {
 function openModal() {
   step.value = 'sido'
   showModal.value = true
+  bodyLockScrollY = window.scrollY || window.pageYOffset || 0
+  document.body.style.position = 'fixed'
+  document.body.style.top = `-${bodyLockScrollY}px`
+  document.body.style.left = '0'
+  document.body.style.right = '0'
+  document.body.style.width = '100%'
   document.body.style.overflow = 'hidden'
 }
 
 function closeModal() {
   showModal.value = false
+  const scrollY = Math.abs(parseInt(document.body.style.top || '0', 10)) || bodyLockScrollY
+  document.body.style.position = ''
+  document.body.style.top = ''
+  document.body.style.left = ''
+  document.body.style.right = ''
+  document.body.style.width = ''
   document.body.style.overflow = ''
+  window.scrollTo({ top: scrollY, behavior: 'auto' })
 }
 
 function selectSido(sido) {
@@ -129,7 +143,7 @@ function goBackToSido() {
           </button>
           <div class="flex-1">
             <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/60">
-              {{ step === 'sido' ? 'Step 1' : 'Step 2' }}
+              {{ step === 'sido' ? 'Step 2' : 'Step 2' }}
             </p>
             <h3 class="text-base font-bold text-foreground">
               {{ step === 'sido' ? '시/도 선택' : `${selectedSido} › 시/군/구 선택` }}

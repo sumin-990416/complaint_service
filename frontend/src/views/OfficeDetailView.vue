@@ -19,6 +19,31 @@ const error = ref(null)
 const userPos = ref(null)
 const prediction = ref(null)
 
+function parseTimeToMinutes(value) {
+  if (!value || value.length < 4) return null
+  const hours = Number(value.slice(0, 2))
+  const minutes = Number(value.slice(2, 4))
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null
+  return hours * 60 + minutes
+}
+
+const isWithinOperatingHours = computed(() => {
+  if (!office.value) return false
+
+  const now = new Date()
+  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+  const startMinutes = parseTimeToMinutes(office.value.wkdy_oper_bgng_tm)
+  const endMinutes = parseTimeToMinutes(office.value.wkdy_oper_end_tm)
+  const isWeekend = now.getDay() === 0 || now.getDay() === 6
+
+  if (isWeekend) {
+    return office.value.wknd_oper_yn === 'Y'
+  }
+
+  if (startMinutes == null || endMinutes == null) return false
+  return currentMinutes >= startMinutes && currentMinutes <= endMinutes
+})
+
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
     ({ coords: { latitude: lat, longitude: lng } }) => { userPos.value = { lat, lng } },
@@ -86,15 +111,19 @@ async function load() {
     loading.value = false
   }
   if (!office.value) return
-  // 예측 + 실시간 병렬 로드
+  await loadPrediction(office.value.cso_sn)
+
+  if (!isWithinOperatingHours.value) {
+    realtime.value = []
+    realtimeLoading.value = false
+    return
+  }
+
   realtimeLoading.value = true
-  await Promise.all([
-    fetchRealtime(office.value.stdg_cd)
-      .then(data => { realtime.value = data.items })
-      .catch(() => {})
-      .finally(() => { realtimeLoading.value = false }),
-    loadPrediction(office.value.cso_sn),
-  ])
+  await fetchRealtime(office.value.stdg_cd)
+    .then(data => { realtime.value = data.items })
+    .catch(() => {})
+    .finally(() => { realtimeLoading.value = false })
 }
 
 onMounted(load)
@@ -151,7 +180,7 @@ onMounted(load)
         </div>
       </div>
 
-      <div class="flex items-center justify-between px-4 pt-6 pb-3">
+      <div v-if="isWithinOperatingHours" class="flex items-center justify-between px-4 pt-6 pb-3">
         <div>
           <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Realtime Queue</p>
           <h3 class="mt-1 font-bold text-base text-foreground">실시간 창구 대기현황</h3>
@@ -159,14 +188,14 @@ onMounted(load)
         <span v-if="lastUpdated" class="text-xs text-muted-foreground">{{ lastUpdated }}</span>
       </div>
 
-      <LoadingSpinner v-if="realtimeLoading" text="대기현황 조회 중…" />
+      <LoadingSpinner v-if="isWithinOperatingHours && realtimeLoading" text="대기현황 조회 중…" />
 
-      <div v-else-if="!realtime.length" class="flex flex-col items-center gap-2 py-10 text-muted-foreground">
+      <div v-else-if="isWithinOperatingHours && !realtime.length" class="flex flex-col items-center gap-2 py-10 text-muted-foreground">
         <span class="text-3xl">🗂</span>
         <p class="text-sm">현재 대기 데이터가 없습니다</p>
       </div>
 
-      <div v-else class="px-4 pb-20 flex flex-col gap-3">
+      <div v-else-if="isWithinOperatingHours" class="px-4 pb-20 flex flex-col gap-3">
         <QueueCard v-for="item in realtime" :key="item.task_no" :item="item" />
       </div>
     </template>

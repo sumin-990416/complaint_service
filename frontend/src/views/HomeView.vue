@@ -35,26 +35,87 @@ const RADIUS_OPTIONS = [1, 5, 10, 20]
 const NEARBY_RADIUS_KM = ref(5)
 const showRadiusModal = ref(false)
 const pendingRadius = ref(5)
+const RADIUS_TONE = {
+  active: 'bg-primary text-white shadow-[0_6px_18px_rgba(59,110,248,0.35)]',
+  label: 'text-primary',
+  line: 'bg-primary',
+}
+let bodyLockScrollY = 0
+const CATEGORY_RULES = {
+  '주민등록/등본': ['주민센터', '행정복지센터', '동사무소', '읍사무소', '면사무소', '출장소', '구청', '시청', '군청'],
+  '전입/가족관계': ['주민센터', '행정복지센터', '동사무소', '읍사무소', '면사무소', '출장소', '구청', '시청', '군청'],
+  '여권': ['여권', '구청', '시청', '군청'],
+  '인감/증명': ['주민센터', '행정복지센터', '동사무소', '읍사무소', '면사무소', '출장소', '구청', '시청', '군청'],
+  '건축/인허가': ['시청', '구청', '군청', '도청'],
+  '사업/세무': ['세무서', '시청', '구청', '군청'],
+}
+const CATEGORY_EXCLUDES = {
+  '여권': ['주민센터', '행정복지센터', '동사무소', '읍사무소', '면사무소'],
+  '건축/인허가': ['주민센터', '행정복지센터', '동사무소', '읍사무소', '면사무소'],
+}
+
+function getRadiusTone(radius) {
+  return RADIUS_TONE
+}
+
+function lockBodyScroll() {
+  bodyLockScrollY = window.scrollY || window.pageYOffset || 0
+  document.body.style.position = 'fixed'
+  document.body.style.top = `-${bodyLockScrollY}px`
+  document.body.style.left = '0'
+  document.body.style.right = '0'
+  document.body.style.width = '100%'
+  document.body.style.overflow = 'hidden'
+}
+
+function unlockBodyScroll() {
+  const scrollY = Math.abs(parseInt(document.body.style.top || '0', 10)) || bodyLockScrollY
+  document.body.style.position = ''
+  document.body.style.top = ''
+  document.body.style.left = ''
+  document.body.style.right = ''
+  document.body.style.width = ''
+  document.body.style.overflow = ''
+  window.scrollTo({ top: scrollY, behavior: 'auto' })
+}
+
+function officeSearchText(office) {
+  return [office.cso_nm, office.road_nm_addr, office.lotno_addr]
+    .filter(Boolean)
+    .join(' ')
+}
+
+function matchesCategory(office, category) {
+  if (category === '전체') return true
+
+  const searchText = officeSearchText(office)
+  const includes = CATEGORY_RULES[category] ?? []
+  const excludes = CATEGORY_EXCLUDES[category] ?? []
+  const included = includes.some(keyword => searchText.includes(keyword))
+  const excluded = excludes.some(keyword => searchText.includes(keyword))
+
+  return included && !excluded
+}
 
 function openNearbyModal() {
   showNearbyModal.value = true
-  document.body.style.overflow = 'hidden'
+  lockBodyScroll()
 }
 
 function closeNearbyModal() {
   showNearbyModal.value = false
-  document.body.style.overflow = ''
+  unlockBodyScroll()
 }
 
 function openRadiusModal() {
   pendingRadius.value = NEARBY_RADIUS_KM.value
   showRadiusModal.value = true
-  document.body.style.overflow = 'hidden'
+  lockBodyScroll()
 }
 
 function closeRadiusModal() {
   showRadiusModal.value = false
-  document.body.style.overflow = ''
+  unlockBodyScroll()
 }
 
 function applyRadius() {
@@ -179,6 +240,7 @@ const nearbyOffices = computed(() => {
   if (!offices.value.length || !userPos.value) return []
 
   return offices.value
+    .filter(office => matchesCategory(office, selectedCategory.value))
     .filter(office => office.lat && office.lot)
     .map(office => ({
       ...office,
@@ -190,12 +252,14 @@ const nearbyOffices = computed(() => {
 
 const mapOffices = computed(() => {
   if (userPos.value) return nearbyOffices.value
-  return offices.value.filter(office => office.lat && office.lot)
+  return offices.value
+    .filter(office => matchesCategory(office, selectedCategory.value))
+    .filter(office => office.lat && office.lot)
 })
 
 const officeCountLabel = computed(() => {
   if (userPos.value) return `${nearbyOffices.value.length}곳`
-  return `${offices.value.length}곳`
+  return `${mapOffices.value.length}곳`
 })
 
 const heroStatus = computed(() => {
@@ -319,6 +383,7 @@ onMounted(async () => {
         </div>
 
         <div class="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 px-5">  Step 2 · 시/도/군 선택 (위치 미허용시)</p>
           <div class="rounded-[16px] bg-white/96 p-1.5">
             <AddressSearch
               :loading="searchLoading"
@@ -367,7 +432,7 @@ onMounted(async () => {
 
         <div v-else-if="locationStatus === 'denied'" class="bg-[linear-gradient(135deg,#fff7ed_0%,#fef3c7_60%,#ffffff_100%)] px-5 py-6">
           <p class="text-xs font-semibold uppercase tracking-[0.18em] text-amber-600">위치 권한 필요</p>
-          <h2 class="mt-1.5 text-base font-bold text-foreground">위치 접근이 차단되어 있어요</h2>
+          <h2 class="mt-1.5 text-base font-bold text-foreground">위치 권한을 허용해주세요!</h2>
           <p class="mt-1 text-sm leading-5 text-muted-foreground">
             주소창 옆 <strong>자물쇠(🔒)</strong>를 탭해 <strong>위치 → 허용</strong>으로 바꾼 뒤 다시 시도해 주세요.
           </p>
@@ -379,10 +444,16 @@ onMounted(async () => {
 
         <div v-else class="bg-[linear-gradient(135deg,#eef4ff_0%,#f8fafc_60%,#ffffff_100%)] px-5 py-6">
           <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">위치 미설정</p>
-          <h2 class="mt-1.5 text-base font-bold text-foreground">위치를 허용하거나 지역을 검색하세요</h2>
+          <h2 class="mt-1.5 text-base font-bold text-foreground">위치 권한을 허용해주세요!</h2>
           <p class="mt-1 text-sm leading-5 text-muted-foreground">
             위치 권한을 허용하면 주변 민원실을 바로 찾고, 검색한 지역도 즉시 지도에 반영합니다.
           </p>
+        </div>
+
+        <div v-if="userPos && !mapOffices.length" class="border-t border-slate-100 bg-slate-50 px-4 py-3 text-sm text-muted-foreground">
+          {{ selectedCategory === '전체'
+            ? '현재 반경 안에 표시할 민원실이 없습니다.'
+            : `${selectedCategory} 업무로 추정되는 민원실이 현재 반경 안에 없습니다.` }}
         </div>
 
         <div class="flex items-center justify-between gap-3 border-t border-slate-100 bg-white px-4 py-3">
@@ -426,7 +497,9 @@ onMounted(async () => {
           위치를 찾거나 지역을 검색하면 가까운 민원실 목록이 나타납니다.
         </div>
         <div v-else-if="!nearbyOffices.length" class="px-5 py-8 text-center text-sm text-muted-foreground">
-          현재 위치 기준 {{ NEARBY_RADIUS_KM }}km 이내에 표시할 민원실이 없습니다. 반경을 넓혀보세요.
+          {{ selectedCategory === '전체'
+            ? `현재 위치 기준 ${NEARBY_RADIUS_KM}km 이내에 표시할 민원실이 없습니다. 반경을 넓혀보세요.`
+            : `${selectedCategory} 업무로 추정되는 민원실이 현재 위치 기준 ${NEARBY_RADIUS_KM}km 이내에 없습니다. 반경을 넓히거나 다른 민원 종류를 선택해보세요.` }}
         </div>
         <ul v-else class="touch-scroll flex max-h-[54dvh] flex-col gap-2.5 px-4 pb-2">
           <OfficeCard
@@ -463,7 +536,8 @@ onMounted(async () => {
                 <div class="relative flex items-center justify-between">
                   <div class="absolute left-5 right-5 h-1.5 rounded-full bg-slate-200"></div>
                   <div
-                    class="absolute left-5 h-1.5 rounded-full bg-rose-500"
+                    class="absolute left-5 h-1.5 rounded-full"
+                    :class="getRadiusTone(pendingRadius).line"
                     style="transition: width 0.35s cubic-bezier(0.34,1.56,0.64,1)"
                     :style="{ width: `calc(${(RADIUS_OPTIONS.indexOf(pendingRadius) / (RADIUS_OPTIONS.length - 1)) * 100}% - ${RADIUS_OPTIONS.indexOf(pendingRadius) === 0 ? 0 : RADIUS_OPTIONS.indexOf(pendingRadius) === RADIUS_OPTIONS.length - 1 ? 40 : 20}px)` }"
                   ></div>
@@ -477,7 +551,7 @@ onMounted(async () => {
                       class="flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold shadow"
                       style="transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1)"
                       :class="pendingRadius === radius
-                        ? 'scale-125 bg-rose-500 text-white shadow-[0_6px_18px_rgba(239,68,68,0.45)]'
+                        ? `scale-125 ${getRadiusTone(radius).active}`
                         : 'scale-100 border-2 border-slate-200 bg-white text-slate-500'"
                     >
                       {{ RADIUS_OPTIONS.indexOf(radius) + 1 }}
@@ -491,17 +565,18 @@ onMounted(async () => {
                     :key="radius"
                     class="w-11 text-center text-[12px] font-semibold"
                     style="transition: color 0.2s"
-                    :class="pendingRadius === radius ? 'text-rose-500' : 'text-slate-400'"
+                    :class="pendingRadius === radius ? getRadiusTone(radius).label : 'text-slate-400'"
                   >{{ radius }}km</span>
                 </div>
               </div>
 
               <div class="px-5 pb-1">
                 <p class="mb-4 text-center text-sm text-muted-foreground">
-                  선택한 반경: <strong class="text-rose-500">{{ pendingRadius }}km</strong> 이내 민원실을 표시합니다
+                  선택한 반경: <strong :class="getRadiusTone(pendingRadius).label">{{ pendingRadius }}km</strong> 이내 민원실을 표시합니다
                 </p>
                 <button
-                  class="tap-feedback w-full rounded-2xl bg-rose-500 py-3.5 text-sm font-bold text-white shadow-[0_6px_18px_rgba(239,68,68,0.3)] transition-transform active:scale-[0.98]"
+                  class="tap-feedback w-full rounded-2xl py-3.5 text-sm font-bold text-white transition-transform active:scale-[0.98]"
+                  :class="getRadiusTone(pendingRadius).active"
                   @click="applyRadius"
                 >이 반경으로 적용하기</button>
               </div>
