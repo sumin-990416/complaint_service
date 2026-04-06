@@ -338,11 +338,13 @@ function requestGeolocation() {
       saveUserPos(userPos.value)
       updateUserLocationLabel(userPos.value)
     },
-    () => {
+    (err) => {
+      // TIMEOUT(3)은 무시 — Safari는 권한 대화상자 표시 중에도 timeout이 흐름
+      if (err.code === err.TIMEOUT) return
       if (!restoreUserPos()) locationStatus.value = 'denied'
       else updateUserLocationLabel(userPos.value)
     },
-    { timeout: 8000 }
+    { timeout: 30000 }
   )
 }
 

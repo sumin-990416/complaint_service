@@ -48,7 +48,7 @@ if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
     ({ coords: { latitude: lat, longitude: lng } }) => { userPos.value = { lat, lng } },
     () => {},
-    { timeout: 6000 },
+    { timeout: 30000 },
   )
 }
 
