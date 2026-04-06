@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { LocateFixed } from 'lucide-vue-next'
+import { useDragToClose } from '../composables/useDragToClose.js'
 
 defineProps({
   loading: { type: Boolean, default: false },
@@ -88,6 +89,13 @@ function selectSigungu(sg) {
 function goBackToSido() {
   step.value = 'sido'
 }
+
+const { sheetStyle, onTouchStart, onTouchMove, onTouchEnd, resetDrag } = useDragToClose(closeModal)
+
+function handleOpenModal() {
+  resetDrag()
+  openModal()
+}
 </script>
 
 <template>
@@ -95,7 +103,7 @@ function goBackToSido() {
     <button
       class="tap-feedback w-full flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] transition-all hover:border-primary hover:bg-white disabled:opacity-50"
       :disabled="loading"
-      @click="openModal"
+      @click="handleOpenModal"
     >
       <span :class="displayLabel ? 'text-foreground font-medium' : 'text-slate-400'">
         {{ displayLabel || '지역을 선택하세요' }}
@@ -127,8 +135,17 @@ function goBackToSido() {
       class="fixed inset-0 z-[200] flex items-end justify-center bg-slate-950/40 backdrop-blur-[2px]"
       @click.self="closeModal"
     >
-      <div class="w-full max-w-[var(--app-max-width)] rounded-t-[28px] bg-white shadow-[0_-20px_60px_rgba(15,23,42,0.18)] max-h-[80dvh] flex flex-col pb-[max(16px,env(safe-area-inset-bottom))]">
-        <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
+      <div
+        class="w-full max-w-[var(--app-max-width)] rounded-t-[28px] bg-white shadow-[0_-20px_60px_rgba(15,23,42,0.18)] max-h-[80dvh] flex flex-col pb-[max(16px,env(safe-area-inset-bottom))]"
+        :style="sheetStyle"
+        style="transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1)"
+      >
+        <div
+          class="flex justify-center pt-3 pb-1 flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
+          @touchstart.passive="onTouchStart"
+          @touchmove="onTouchMove"
+          @touchend="onTouchEnd"
+        >
           <div class="h-1.5 w-14 rounded-full bg-slate-200"></div>
         </div>
         <div class="flex items-center gap-2 px-5 py-3 border-b border-slate-100 flex-shrink-0">

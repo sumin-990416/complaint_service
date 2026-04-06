@@ -6,6 +6,7 @@ import AppHeader from '../components/AppHeader.vue'
 import AddressSearch from '../components/AddressSearch.vue'
 import OfficeMap from '../components/OfficeMap.vue'
 import OfficeCard from '../components/OfficeCard.vue'
+import { useDragToClose } from '../composables/useDragToClose.js'
 
 const KAKAO_KEY = import.meta.env.VITE_KAKAO_MAPS_KEY
 
@@ -98,6 +99,7 @@ function matchesCategory(office, category) {
 }
 
 function openNearbyModal() {
+  nearbyResetDrag()
   showNearbyModal.value = true
   lockBodyScroll()
 }
@@ -109,6 +111,7 @@ function closeNearbyModal() {
 
 function openRadiusModal() {
   pendingRadius.value = NEARBY_RADIUS_KM.value
+  radiusResetDrag()
   showRadiusModal.value = true
   lockBodyScroll()
 }
@@ -122,6 +125,22 @@ function applyRadius() {
   NEARBY_RADIUS_KM.value = pendingRadius.value
   closeRadiusModal()
 }
+
+const {
+  sheetStyle: nearbySheetStyle,
+  onTouchStart: nearbyTouchStart,
+  onTouchMove: nearbyTouchMove,
+  onTouchEnd: nearbyTouchEnd,
+  resetDrag: nearbyResetDrag,
+} = useDragToClose(closeNearbyModal)
+
+const {
+  sheetStyle: radiusSheetStyle,
+  onTouchStart: radiusTouchStart,
+  onTouchMove: radiusTouchMove,
+  onTouchEnd: radiusTouchEnd,
+  resetDrag: radiusResetDrag,
+} = useDragToClose(closeRadiusModal)
 
 function saveUserPos(pos) {
   if (!pos) return
@@ -478,8 +497,17 @@ onMounted(async () => {
       class="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/38 backdrop-blur-[2px]"
       @click.self="closeNearbyModal"
     >
-      <section class="max-h-[72dvh] w-full max-w-[var(--app-max-width)] rounded-t-[30px] bg-white pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]">
-        <div class="flex justify-center pb-2 pt-3">
+      <section
+        class="max-h-[72dvh] w-full max-w-[var(--app-max-width)] rounded-t-[30px] bg-white pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]"
+        :style="nearbySheetStyle"
+        style="transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1)"
+      >
+        <div
+          class="flex justify-center pb-2 pt-3 cursor-grab active:cursor-grabbing touch-none"
+          @touchstart.passive="nearbyTouchStart"
+          @touchmove="nearbyTouchMove"
+          @touchend="nearbyTouchEnd"
+        >
           <div class="h-1.5 w-14 rounded-full bg-slate-200"></div>
         </div>
         <div class="flex items-center justify-between px-5 pb-3">
@@ -520,8 +548,17 @@ onMounted(async () => {
           @click.self="closeRadiusModal"
         >
           <Transition name="radius-sheet" appear>
-            <div class="w-full max-w-[var(--app-max-width)] rounded-t-[28px] bg-white pb-[max(24px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]">
-              <div class="flex justify-center pb-1 pt-3">
+            <div
+              class="w-full max-w-[var(--app-max-width)] rounded-t-[28px] bg-white pb-[max(24px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]"
+              :style="radiusSheetStyle"
+              style="transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1)"
+            >
+              <div
+                class="flex justify-center pb-1 pt-3 cursor-grab active:cursor-grabbing touch-none"
+                @touchstart.passive="radiusTouchStart"
+                @touchmove="radiusTouchMove"
+                @touchend="radiusTouchEnd"
+              >
                 <div class="h-1.5 w-14 rounded-full bg-slate-200"></div>
               </div>
               <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">
