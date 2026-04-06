@@ -201,24 +201,25 @@ onMounted(load)
         </div>
       </div>
 
-      <div v-if="isWithinOperatingHours" class="flex items-center justify-between px-4 pt-6 pb-3">
-        <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Realtime Queue</p>
-          <h3 class="mt-1 font-bold text-base text-foreground">실시간 창구 대기현황</h3>
+      <template v-if="isWithinOperatingHours">
+        <div class="flex items-center justify-between px-4 pt-6 pb-3">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Realtime Queue</p>
+            <h3 class="mt-1 font-bold text-base text-foreground">실시간 창구 대기현황</h3>
+          </div>
+          <span v-if="lastUpdated" class="text-xs text-muted-foreground">{{ lastUpdated }}</span>
         </div>
-        <span v-if="lastUpdated" class="text-xs text-muted-foreground">{{ lastUpdated }}</span>
-      </div>
 
-      <LoadingSpinner v-if="isWithinOperatingHours && realtimeLoading" text="대기현황 조회 중…" />
+        <LoadingSpinner v-if="realtimeLoading" text="대기현황 조회 중…" />
 
-      <div v-else-if="isWithinOperatingHours && !realtime.length" class="flex flex-col items-center gap-2 py-10 text-muted-foreground">
-        <span class="text-3xl">🗂</span>
-        <p class="text-sm">현재 대기 데이터가 없습니다</p>
-      </div>
+        <div v-else-if="!realtime.length" class="px-4 pb-6">
+          <p class="text-sm text-muted-foreground">추후 업데이트 예정입니다</p>
+        </div>
 
-      <div v-else-if="isWithinOperatingHours" class="px-4 pb-20 flex flex-col gap-3">
-        <QueueCard v-for="item in realtime" :key="item.task_no" :item="item" />
-      </div>
+        <div v-else class="px-4 pb-20 flex flex-col gap-3">
+          <QueueCard v-for="item in realtime" :key="item.task_no" :item="item" />
+        </div>
+      </template>
     </template>
   </div>
 </template>
