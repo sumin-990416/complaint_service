@@ -15,3 +15,11 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+@field_validator("database_url", mode="before")
+@classmethod
+def fix_database_url(cls, v: str) -> str:
+    if v.startswith("postgresql://") and "+asyncpg" not in v:
+        v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return v
