@@ -11,6 +11,23 @@ import QueueCard from '../components/QueueCard.vue'
 const props = defineProps({ csoSn: String })
 const router = useRouter()
 
+/** KST(Asia/Seoul) 기준 현재 시각 정보 */
+function nowKST() {
+  const now = new Date()
+  const kst = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    hour: 'numeric', minute: 'numeric',
+    weekday: 'short',
+    hour12: false,
+  }).formatToParts(now)
+  const get = (type) => kst.find(p => p.type === type)?.value ?? ''
+  const hour = parseInt(get('hour'), 10)
+  const minute = parseInt(get('minute'), 10)
+  const weekdayMap = { '일': 0, '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6 }
+  const dayOfWeek = weekdayMap[get('weekday')] ?? new Date().getDay()
+  return { hour, minute, dayOfWeek }
+}
+
 const office = ref(null)
 const realtime = ref([])
 const loading = ref(true)
@@ -30,11 +47,11 @@ function parseTimeToMinutes(value) {
 const isWithinOperatingHours = computed(() => {
   if (!office.value) return false
 
-  const now = new Date()
-  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+  const { hour, minute, dayOfWeek } = nowKST()
+  const currentMinutes = hour * 60 + minute
   const startMinutes = parseTimeToMinutes(office.value.wkdy_oper_bgng_tm)
   const endMinutes = parseTimeToMinutes(office.value.wkdy_oper_end_tm)
-  const isWeekend = now.getDay() === 0 || now.getDay() === 6
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
 
   if (isWeekend) {
     return office.value.wknd_oper_yn === 'Y'
@@ -90,10 +107,9 @@ const lastUpdated = computed(() =>
 )
 
 async function loadPrediction(csoSn) {
-  const now = new Date()
-  // JS: 0=일 1=월 … 6=토 → Python: 0=월 … 6=일
-  const dow = now.getDay() === 0 ? 6 : now.getDay() - 1
-  const hour = now.getHours()
+  const { hour, dayOfWeek } = nowKST()
+  // JS 요일(0=일…6=토) → Python(0=월…6=일)
+  const dow = dayOfWeek === 0 ? 6 : dayOfWeek - 1
   try {
     const res = await fetch(`/api/prediction/${csoSn}?dow=${dow}&hour=${hour}`)
     prediction.value = await res.json()
