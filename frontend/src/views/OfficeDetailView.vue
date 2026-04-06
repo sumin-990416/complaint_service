@@ -186,30 +186,30 @@ onMounted(load)
       <OfficeInfoCard :office="office" :user-pos="userPos" />
 
       <div v-if="prediction" class="mx-4 mt-3 overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+        <div class="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
           <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/60">AI 방문 예측</p>
           <span
             v-if="prediction.level !== 'unknown'"
-            class="text-[11px] font-bold px-2.5 py-1 rounded-full"
+            class="text-sm font-bold px-3 py-1.5 rounded-full"
             :class="{
-              'bg-emerald-50 text-emerald-600': prediction.level === '여유',
-              'bg-amber-50 text-amber-600': prediction.level === '보통',
-              'bg-red-50 text-red-500': prediction.level === '혼잡',
+              'bg-emerald-100 text-emerald-700': prediction.level === '여유',
+              'bg-amber-100 text-amber-700': prediction.level === '보통',
+              'bg-red-100 text-red-600': prediction.level === '혼잡',
             }"
           >{{ prediction.level }}</span>
         </div>
         <div class="px-4 py-4">
           <template v-if="prediction.level === 'unknown'">
-            <p class="text-sm text-muted-foreground">추후 업데이트 예정입니다</p>
+            <p class="text-[15px] text-muted-foreground">추후 업데이트 예정입니다</p>
           </template>
           <template v-else>
-            <p class="text-[15px] font-semibold text-foreground">{{ prediction.message }}</p>
-            <div class="mt-2 flex items-center gap-3">
-              <p v-if="prediction.predicted !== null" class="text-xs text-muted-foreground">
+            <p class="text-[17px] font-bold text-foreground">{{ prediction.message }}</p>
+            <div class="mt-2.5 flex items-center gap-3">
+              <p v-if="prediction.predicted !== null" class="text-sm text-muted-foreground">
                 이 시간대 평균 대기 <span class="font-semibold text-foreground">{{ prediction.predicted }}명</span>
               </p>
               <span v-if="prediction.predicted !== null && prediction.sample_count > 0" class="text-slate-300">·</span>
-              <p v-if="prediction.sample_count > 0" class="text-xs text-muted-foreground">
+              <p v-if="prediction.sample_count > 0" class="text-sm text-muted-foreground">
                 수집 데이터 {{ prediction.sample_count }}건
               </p>
             </div>
@@ -221,7 +221,7 @@ onMounted(load)
         <div class="flex items-center justify-between px-4 pt-6 pb-3">
           <div>
             <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Realtime Queue</p>
-            <h3 class="mt-1 font-bold text-base text-foreground">실시간 창구 대기현황</h3>
+            <h3 class="mt-1 font-bold text-lg text-foreground">실시간 창구 대기현황</h3>
           </div>
           <span v-if="lastUpdated" class="text-xs text-muted-foreground">{{ lastUpdated }}</span>
         </div>
