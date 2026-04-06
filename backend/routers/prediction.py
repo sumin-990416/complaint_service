@@ -10,13 +10,13 @@ router = APIRouter(prefix="/prediction", tags=["prediction"])
 DOW_KR = ["월", "화", "수", "목", "금", "토", "일"]
 
 
-def _level(predicted: float) -> tuple[str, str, str]:
+def _level(predicted: float) -> tuple[str, str]:
     if predicted < 3:
-        return "여유", "🟢", "지금 바로 방문하기 좋아요!"
+        return "여유", "지금 바로 방문하기 좋아요"
     elif predicted < 8:
-        return "보통", "🟡", "약간의 대기가 있을 수 있어요"
+        return "보통", "약간의 대기가 있을 수 있어요"
     else:
-        return "혼잡", "🔴", "대기 인원이 많을 수 있어요"
+        return "혼잡", "대기 인원이 많을 수 있어요"
 
 
 @router.get("/{cso_sn}")
@@ -38,12 +38,11 @@ async def get_prediction(
     # 1순위: ML 모델 예측
     ml_result = ml_predict(cso_sn, dow, hour)
     if ml_result is not None:
-        level, emoji, msg = _level(ml_result)
+        level, msg = _level(ml_result)
         return {
             "predicted": ml_result,
             "level": level,
-            "emoji": emoji,
-            "message": f"{DOW_KR[dow]}요일 {hour}시 기준 {emoji} {msg}",
+            "message": msg,
             "source": "ml",
             "sample_count": sample_count,
         }
@@ -68,12 +67,11 @@ async def get_prediction(
         }
 
     predicted = round(float(avg), 1)
-    level, emoji, msg = _level(predicted)
+    level, msg = _level(predicted)
     return {
         "predicted": predicted,
         "level": level,
-        "emoji": emoji,
-        "message": f"{DOW_KR[dow]}요일 {hour}시 기준 {emoji} {msg}",
+        "message": msg,
         "source": "avg_fallback",
         "sample_count": sample_count,
     }

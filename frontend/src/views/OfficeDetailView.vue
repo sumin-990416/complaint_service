@@ -137,7 +137,12 @@ async function load() {
 
   realtimeLoading.value = true
   await fetchRealtime(office.value.stdg_cd)
-    .then(data => { realtime.value = data.items })
+    .then(data => {
+      // 해당 민원실 항목만, 업무명 없는 항목 제외
+      realtime.value = data.items.filter(
+        item => item.cso_sn === office.value.cso_sn && item.task_nm?.trim()
+      )
+    })
     .catch(() => {})
     .finally(() => { realtimeLoading.value = false })
 }
@@ -180,23 +185,34 @@ onMounted(load)
 
       <OfficeInfoCard :office="office" :user-pos="userPos" />
 
-      <div v-if="prediction" class="mx-4 mt-3 overflow-hidden rounded-[22px] border border-white/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
-        <div class="flex items-center gap-2 px-4 py-3 bg-[linear-gradient(135deg,#eef2ff_0%,#f8fafc_100%)] border-b border-slate-100">
-          <span class="text-base">🤖</span>
-          <p class="text-sm font-semibold text-foreground">AI 방문 예측</p>
+      <div v-if="prediction" class="mx-4 mt-3 overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/60">AI 방문 예측</p>
+          <span
+            v-if="prediction.level !== 'unknown'"
+            class="text-[11px] font-bold px-2.5 py-1 rounded-full"
+            :class="{
+              'bg-emerald-50 text-emerald-600': prediction.level === '여유',
+              'bg-amber-50 text-amber-600': prediction.level === '보통',
+              'bg-red-50 text-red-500': prediction.level === '혼잡',
+            }"
+          >{{ prediction.level }}</span>
         </div>
-        <div class="px-4 py-3">
+        <div class="px-4 py-4">
           <template v-if="prediction.level === 'unknown'">
             <p class="text-sm text-muted-foreground">추후 업데이트 예정입니다</p>
           </template>
           <template v-else>
-            <p class="text-sm text-foreground whitespace-pre-line">{{ prediction.message }}</p>
-            <p v-if="prediction.predicted !== null" class="text-xs text-muted-foreground mt-1">
-              이 시간대 평균 대기 <span class="font-semibold text-foreground">{{ prediction.predicted }}명</span>
-            </p>
-            <p v-if="prediction.sample_count > 0" class="text-[11px] text-muted-foreground mt-1">
-              수집 데이터 {{ prediction.sample_count }}건 기반
-            </p>
+            <p class="text-[15px] font-semibold text-foreground">{{ prediction.message }}</p>
+            <div class="mt-2 flex items-center gap-3">
+              <p v-if="prediction.predicted !== null" class="text-xs text-muted-foreground">
+                이 시간대 평균 대기 <span class="font-semibold text-foreground">{{ prediction.predicted }}명</span>
+              </p>
+              <span v-if="prediction.predicted !== null && prediction.sample_count > 0" class="text-slate-300">·</span>
+              <p v-if="prediction.sample_count > 0" class="text-xs text-muted-foreground">
+                수집 데이터 {{ prediction.sample_count }}건
+              </p>
+            </div>
           </template>
         </div>
       </div>
