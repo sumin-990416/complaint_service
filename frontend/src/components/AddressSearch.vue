@@ -124,10 +124,10 @@ function goBackToSido() {
   <Teleport to="body">
     <div
       v-if="showModal"
-      class="fixed inset-0 z-[200] flex items-end bg-slate-950/40 backdrop-blur-[2px]"
+      class="fixed inset-0 z-[200] flex items-end justify-center bg-slate-950/40 backdrop-blur-[2px]"
       @click.self="closeModal"
     >
-      <div class="w-full rounded-t-[28px] bg-white shadow-[0_-20px_60px_rgba(15,23,42,0.18)] max-h-[80dvh] flex flex-col pb-[max(16px,env(safe-area-inset-bottom))]">
+      <div class="w-full max-w-[var(--app-max-width)] rounded-t-[28px] bg-white shadow-[0_-20px_60px_rgba(15,23,42,0.18)] max-h-[80dvh] flex flex-col pb-[max(16px,env(safe-area-inset-bottom))]">
         <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
           <div class="h-1.5 w-14 rounded-full bg-slate-200"></div>
         </div>

@@ -475,10 +475,10 @@ onMounted(async () => {
 
     <div
       v-if="showNearbyModal"
-      class="fixed inset-0 z-[80] flex items-end bg-slate-950/38 backdrop-blur-[2px]"
+      class="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/38 backdrop-blur-[2px]"
       @click.self="closeNearbyModal"
     >
-      <section class="max-h-[72dvh] w-full rounded-t-[30px] bg-white pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]">
+      <section class="max-h-[72dvh] w-full max-w-[var(--app-max-width)] rounded-t-[30px] bg-white pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]">
         <div class="flex justify-center pb-2 pt-3">
           <div class="h-1.5 w-14 rounded-full bg-slate-200"></div>
         </div>
@@ -516,11 +516,11 @@ onMounted(async () => {
       <Transition name="radius-backdrop">
         <div
           v-if="showRadiusModal"
-          class="fixed inset-0 z-[200] flex items-end bg-slate-950/40 backdrop-blur-[2px]"
+          class="fixed inset-0 z-[200] flex items-end justify-center bg-slate-950/40 backdrop-blur-[2px]"
           @click.self="closeRadiusModal"
         >
           <Transition name="radius-sheet" appear>
-            <div class="w-full rounded-t-[28px] bg-white pb-[max(24px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]">
+            <div class="w-full max-w-[var(--app-max-width)] rounded-t-[28px] bg-white pb-[max(24px,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(15,23,42,0.18)]">
               <div class="flex justify-center pb-1 pt-3">
                 <div class="h-1.5 w-14 rounded-full bg-slate-200"></div>
               </div>
