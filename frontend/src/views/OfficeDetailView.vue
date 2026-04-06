@@ -170,13 +170,18 @@ onMounted(load)
           <p class="text-sm font-semibold text-foreground">AI 방문 예측</p>
         </div>
         <div class="px-4 py-3">
-          <p class="text-sm text-foreground whitespace-pre-line">{{ prediction.message }}</p>
-          <p v-if="prediction.predicted !== null" class="text-xs text-muted-foreground mt-1">
-            이 시간대 평균 대기 <span class="font-semibold text-foreground">{{ prediction.predicted }}명</span>
-          </p>
-          <p v-if="prediction.sample_count > 0" class="text-[11px] text-muted-foreground mt-1">
-            수집 데이터 {{ prediction.sample_count }}건 기반
-          </p>
+          <template v-if="prediction.level === 'unknown'">
+            <p class="text-sm text-muted-foreground">추후 업데이트 예정입니다</p>
+          </template>
+          <template v-else>
+            <p class="text-sm text-foreground whitespace-pre-line">{{ prediction.message }}</p>
+            <p v-if="prediction.predicted !== null" class="text-xs text-muted-foreground mt-1">
+              이 시간대 평균 대기 <span class="font-semibold text-foreground">{{ prediction.predicted }}명</span>
+            </p>
+            <p v-if="prediction.sample_count > 0" class="text-[11px] text-muted-foreground mt-1">
+              수집 데이터 {{ prediction.sample_count }}건 기반
+            </p>
+          </template>
         </div>
       </div>
 
