@@ -32,9 +32,17 @@ export async function geocodeAddress(query) {
     geocoder.addressSearch(query, (result, status) => {
       if (status === window.kakao.maps.services.Status.OK && result.length) {
         resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) })
-      } else {
-        reject(new Error('정확한 지역명(주소)을 입력해주세요'))
+        return
       }
+      // addressSearch 실패 시 keywordSearch 폴백 (세종특별자치시 등 행정구역명)
+      const places = new window.kakao.maps.services.Places()
+      places.keywordSearch(query, (placeResult, placeStatus) => {
+        if (placeStatus === window.kakao.maps.services.Status.OK && placeResult.length) {
+          resolve({ lat: parseFloat(placeResult[0].y), lng: parseFloat(placeResult[0].x) })
+        } else {
+          reject(new Error('정확한 지역명(주소)을 입력해주세요'))
+        }
+      })
     })
   })
 }
