@@ -7,6 +7,12 @@ class Settings(BaseSettings):
     public_api_base: str = "https://apis.data.go.kr/B551982/cso_v2"
     openrouter_api_key: str = ""
     kakao_rest_key: str = ""
+    vite_kakao_maps_key: str = ""
+
+    @property
+    def kakao_key(self) -> str:
+        """KAKAO_REST_KEY 우선, 없으면 VITE_KAKAO_MAPS_KEY 사용"""
+        return self.kakao_rest_key or self.vite_kakao_maps_key
 
     model_config = SettingsConfigDict(
         env_file=".env",

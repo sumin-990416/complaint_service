@@ -17,10 +17,10 @@ async def geocode(q: str = Query(..., description="주소 또는 지역명")):
     1차: address.json (도로명/지번 주소)
     2차: keyword.json (지역명, 장소명)
     """
-    if not settings.kakao_rest_key:
+    if not settings.kakao_key:
         raise HTTPException(status_code=503, detail="KAKAO_REST_KEY가 설정되지 않았습니다.")
 
-    headers = {"Authorization": f"KakaoAK {settings.kakao_rest_key}"}
+    headers = {"Authorization": f"KakaoAK {settings.kakao_key}"}
 
     async with httpx.AsyncClient(timeout=8) as client:
         # 1차: 주소 검색
