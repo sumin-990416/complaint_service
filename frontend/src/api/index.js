@@ -1,4 +1,5 @@
 const BASE = '/api'
+import { lookupCentroid } from '../lib/regionCentroids.js'
 
 export async function fetchOffices() {
   const res = await fetch(`${BASE}/offices`)
@@ -19,7 +20,22 @@ export async function fetchRealtime(stdgCd) {
 }
 
 export async function geocodeAddress(query) {
-  // services 로드 대기 (최대 3초)
+  // 1순위: 정적 행정구역 좌표표 (즉시)
+  const centroid = lookupCentroid(query)
+  if (centroid) return centroid
+
+  // 2순위: 백엔드 /api/geocode 프록시 (카카오 로컬 REST API)
+  try {
+    const res = await fetch(`${BASE}/geocode?q=${encodeURIComponent(query)}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.lat && data.lng) return data
+    }
+  } catch {
+    // 백엔드 실패 시 SDK 폴백
+  }
+
+  // 3순위: 카카오 Maps JS SDK 폴백
   for (let i = 0; i < 30; i++) {
     if (window.kakao?.maps?.services) break
     await new Promise(r => setTimeout(r, 100))
@@ -27,47 +43,13 @@ export async function geocodeAddress(query) {
   if (!window.kakao?.maps?.services) {
     throw new Error('카카오 지도 SDK가 아직 로드되지 않았습니다. 페이지를 새로고침 해주세요.')
   }
-
-  // 행정구역명 → 시청/구청/군청 이름으로 변환해 좌표 검색
-  // 예: "대전광역시 중구" → "대전광역시 중구청", "세종특별자치시" → "세종특별자치시청"
-  function toOfficeQuery(q) {
-    const t = q.trim()
-    if (t.endsWith('구') || t.endsWith('군') || t.endsWith('시') || t.endsWith('도')) return `${t}청`
-    return t
-  }
-
-  function keywordSearch(searchQuery) {
-    return new Promise((resolve, reject) => {
-      const places = new window.kakao.maps.services.Places()
-      places.keywordSearch(searchQuery, (result, status) => {
-        if (status === window.kakao.maps.services.Status.OK && result.length) {
-          resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) })
-        } else {
-          reject(new Error('정확한 지역명(주소)을 입력해주세요'))
-        }
-      })
-    })
-  }
-
   return new Promise((resolve, reject) => {
     const geocoder = new window.kakao.maps.services.Geocoder()
-    geocoder.addressSearch(query, async (result, status) => {
+    geocoder.addressSearch(query, (result, status) => {
       if (status === window.kakao.maps.services.Status.OK && result.length) {
         resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) })
-        return
-      }
-      // addressSearch 실패 → 청사명으로 keywordSearch
-      try {
-        const pos = await keywordSearch(toOfficeQuery(query))
-        resolve(pos)
-      } catch {
-        // 청사명도 실패 → 원본 키워드로 재시도
-        try {
-          const pos = await keywordSearch(query)
-          resolve(pos)
-        } catch (err) {
-          reject(err)
-        }
+      } else {
+        reject(new Error('정확한 지역명(주소)을 입력해주세요'))
       }
     })
   })

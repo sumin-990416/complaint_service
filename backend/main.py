@@ -59,6 +59,8 @@ app.include_router(offices.router, prefix="/api")
 app.include_router(realtime.router, prefix="/api")
 app.include_router(prediction.router, prefix="/api")
 app.include_router(chatbot.router, prefix="/api")
+from backend.routers import geocode as geocode_router
+app.include_router(geocode_router.router, prefix="/api")
 
 
 @app.get("/")
