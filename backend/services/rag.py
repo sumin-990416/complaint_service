@@ -9,6 +9,7 @@ from zipfile import ZipFile
 
 
 DOC_PATH = Path(__file__).resolve().parents[2] / "docs" / "민원업무편람(2026).hwpx"
+DOCS_DIR = Path(__file__).resolve().parents[2] / "docs"
 PREVIEW_PATH = "Preview/PrvText.txt"
 SECTION_XML_PATH = "Contents/section0.xml"
 QUERY_SYNONYMS = {
@@ -61,6 +62,36 @@ def _expand_query(query_text: str) -> list[str]:
     return expanded
 
 
+def _find_pdf() -> Path | None:
+    """docs/ 디렉토리에서 PDF 파일을 찾아 반환 (없으면 None)."""
+    if not DOCS_DIR.exists():
+        return None
+    pdfs = sorted(DOCS_DIR.glob("*.pdf"))
+    return pdfs[0] if pdfs else None
+
+
+def _load_pdf_text() -> list[str]:
+    """PDF 파일에서 페이지별 텍스트를 추출해 단락 리스트로 반환."""
+    pdf_path = _find_pdf()
+    if pdf_path is None:
+        return []
+    try:
+        from pypdf import PdfReader
+    except ImportError:
+        return []
+
+    paragraphs: list[str] = []
+    reader = PdfReader(pdf_path)
+    for page in reader.pages:
+        page_text = page.extract_text() or ""
+        for raw_line in page_text.splitlines():
+            line = re.sub(r"[□○☞▶※·\u200b]", " ", raw_line)
+            line = re.sub(r"\s+", " ", line).strip()
+            if len(line) >= 5:
+                paragraphs.append(line)
+    return paragraphs
+
+
 def _load_hwpx_preview_text() -> str:
     if not DOC_PATH.exists():
         return ""
@@ -109,13 +140,27 @@ def _build_chunks(raw_text: str, chunk_size: int = 700) -> list[RagChunk]:
     return [RagChunk(text=chunk, tokens=_tokenize(chunk)) for chunk in chunks]
 
 
+def _strip_inner_xml(text: str) -> str:
+    """hp:t 내부에 남아있는 XML 태그(hp:tab 등)를 제거하고 순수 텍스트만 반환."""
+    text = re.sub(r"<[^>]+/>", " ", text)   # self-closing 태그 제거
+    text = re.sub(r"<[^>]+>", " ", text)    # 일반 태그 제거
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def _extract_paragraphs_from_section_xml(raw_xml: str) -> list[str]:
+    """표(tc) 셀 포함, 모든 단락에서 텍스트를 추출한다."""
     paragraphs: list[str] = []
-    for paragraph_xml in re.findall(r"<hp:p\b.*?</hp:p>", raw_xml, flags=re.DOTALL):
-        texts = re.findall(r"<hp:t>(.*?)</hp:t>", paragraph_xml, flags=re.DOTALL)
-        if not texts:
+
+    # hp:p 태그를 모두 추출 (중첩 구조도 포함하기 위해 전체 xml을 탐색)
+    for paragraph_xml in re.findall(r"<hp:p\b[^>]*>.*?</hp:p>", raw_xml, flags=re.DOTALL):
+        # hp:t 태그 내용 수집 (내부 XML 잔재 제거)
+        raw_texts = re.findall(r"<hp:t[^>]*>(.*?)</hp:t>", paragraph_xml, flags=re.DOTALL)
+        if not raw_texts:
             continue
-        paragraph = _normalize_text(unescape(" ".join(texts)))
+        cleaned_parts = [_strip_inner_xml(unescape(t)) for t in raw_texts]
+        paragraph = " ".join(p for p in cleaned_parts if p)
+        paragraph = re.sub(r"[□○☞▶※\u200b]", " ", paragraph)
+        paragraph = re.sub(r"\s+", " ", paragraph).strip()
         if len(paragraph) >= 3:
             paragraphs.append(paragraph)
     return paragraphs
@@ -147,12 +192,22 @@ def _build_chunks_from_paragraphs(paragraphs: list[str], chunk_size: int = 650) 
 
 @lru_cache(maxsize=1)
 def get_rag_chunks() -> list[RagChunk]:
+    all_paragraphs: list[str] = []
+
+    # PDF 소스 (법제처 민원편람 등)
+    pdf_paragraphs = _load_pdf_text()
+    all_paragraphs.extend(pdf_paragraphs)
+
+    # HWPX 소스 (강남구 민원업무편람 등)
     raw_xml = _load_hwpx_section_xml()
     if raw_xml:
-        paragraphs = _extract_paragraphs_from_section_xml(raw_xml)
-        if paragraphs:
-            return _build_chunks_from_paragraphs(paragraphs, chunk_size=650)
+        hwpx_paragraphs = _extract_paragraphs_from_section_xml(raw_xml)
+        all_paragraphs.extend(hwpx_paragraphs)
 
+    if all_paragraphs:
+        return _build_chunks_from_paragraphs(all_paragraphs, chunk_size=650)
+
+    # 최후 fallback: HWPX preview text
     raw_text = _load_hwpx_preview_text()
     if not raw_text:
         return []

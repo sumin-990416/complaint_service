@@ -1,4 +1,5 @@
 """민원 안내 챗봇 — OpenRouter API (스트리밍 SSE)"""
+import asyncio
 from typing import AsyncGenerator
 
 import httpx
@@ -9,6 +10,7 @@ from pydantic import BaseModel
 from backend import crud
 from backend.config import settings
 from backend.database import AsyncSessionLocal
+from backend.services.gov24_scraper import search_gov24
 from backend.services.rag import search_manual
 
 router = APIRouter(prefix="/chat", tags=["chatbot"])
@@ -108,7 +110,11 @@ async def chat_stream(req: ChatRequest):
     search_query = latest_user_message
     if req.category:
         search_query = f"{req.category} {search_query}".strip()
-    manual_chunks = search_manual(search_query)
+
+    manual_chunks, gov24_ctx = await asyncio.gather(
+        asyncio.to_thread(search_manual, search_query),
+        search_gov24(search_query),
+    )
 
     if req.category:
         system_content += (
@@ -121,6 +127,8 @@ async def chat_stream(req: ChatRequest):
         system_content += "\n\n[민원업무편람 검색 결과]"
         for index, chunk in enumerate(manual_chunks, start=1):
             system_content += f"\n{index}. {chunk}"
+    if gov24_ctx:
+        system_content += f"\n\n[정부24 실시간 서비스 정보]\n{gov24_ctx}"
     if offices_ctx:
         system_content += f"\n\n{offices_ctx}"
 
