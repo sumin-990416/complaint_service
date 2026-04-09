@@ -27,22 +27,48 @@ export async function geocodeAddress(query) {
   if (!window.kakao?.maps?.services) {
     throw new Error('카카오 지도 SDK가 아직 로드되지 않았습니다. 페이지를 새로고침 해주세요.')
   }
-  return new Promise((resolve, reject) => {
-    const geocoder = new window.kakao.maps.services.Geocoder()
-    geocoder.addressSearch(query, (result, status) => {
-      if (status === window.kakao.maps.services.Status.OK && result.length) {
-        resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) })
-        return
-      }
-      // addressSearch 실패 시 keywordSearch 폴백 (세종특별자치시 등 행정구역명)
+
+  // 행정구역명 → 시청/구청/군청 이름으로 변환해 좌표 검색
+  // 예: "대전광역시 중구" → "대전광역시 중구청", "세종특별자치시" → "세종특별자치시청"
+  function toOfficeQuery(q) {
+    const t = q.trim()
+    if (t.endsWith('구') || t.endsWith('군') || t.endsWith('시') || t.endsWith('도')) return `${t}청`
+    return t
+  }
+
+  function keywordSearch(searchQuery) {
+    return new Promise((resolve, reject) => {
       const places = new window.kakao.maps.services.Places()
-      places.keywordSearch(query, (placeResult, placeStatus) => {
-        if (placeStatus === window.kakao.maps.services.Status.OK && placeResult.length) {
-          resolve({ lat: parseFloat(placeResult[0].y), lng: parseFloat(placeResult[0].x) })
+      places.keywordSearch(searchQuery, (result, status) => {
+        if (status === window.kakao.maps.services.Status.OK && result.length) {
+          resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) })
         } else {
           reject(new Error('정확한 지역명(주소)을 입력해주세요'))
         }
       })
+    })
+  }
+
+  return new Promise((resolve, reject) => {
+    const geocoder = new window.kakao.maps.services.Geocoder()
+    geocoder.addressSearch(query, async (result, status) => {
+      if (status === window.kakao.maps.services.Status.OK && result.length) {
+        resolve({ lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) })
+        return
+      }
+      // addressSearch 실패 → 청사명으로 keywordSearch
+      try {
+        const pos = await keywordSearch(toOfficeQuery(query))
+        resolve(pos)
+      } catch {
+        // 청사명도 실패 → 원본 키워드로 재시도
+        try {
+          const pos = await keywordSearch(query)
+          resolve(pos)
+        } catch (err) {
+          reject(err)
+        }
+      }
     })
   })
 }
