@@ -49,11 +49,18 @@ def _map_fields(item: dict) -> dict:
         "wkdy_oper_bgng_tm": item.get("wkdyOperBgngTm"),
         "wkdy_oper_end_tm": item.get("wkdyOperEndTm"),
         "nght_oper_yn": item.get("nghtOperYn"),
-        "nght_dow_expln": item.get("nghtDowExpln"),
+        "nght_dow_expln": _normalize_expln(item.get("nghtDowExpln")),
         "wknd_oper_yn": item.get("wkndOperYn"),
-        "wknd_dow_expln": item.get("wkndDowExpln"),
+        "wknd_dow_expln": _normalize_expln(item.get("wkndDowExpln")),
         "tot_crtr_ymd": item.get("totCrtrYmd"),
     }
+
+
+def _normalize_expln(text: str | None) -> str | None:
+    """공공API 오타/이상 값 정규화"""
+    if not text:
+        return text
+    return text.replace("20:01", "20:00")
 
 
 def _to_float(value) -> float | None:

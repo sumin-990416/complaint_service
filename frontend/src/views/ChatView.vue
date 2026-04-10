@@ -120,8 +120,35 @@ onMounted(() => {
   <div class="flex flex-col h-dvh bg-background safe-bottom">
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,110,248,0.34),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(14,165,233,0.18),_transparent_18%)]"></div>
-      <AppHeader title="민원 AI 안내" :show-back="true" @back="router.back()" />
-      <div class="relative page-gutter pt-3 pb-8">
+      <AppHeader title="" />
+
+      <!-- 모드 토글 -->
+      <div class="relative page-gutter pt-2 pb-2 flex justify-center">
+        <div class="inline-flex items-center rounded-full bg-white/10 p-1 gap-1">
+          <button
+            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors text-white/60 hover:text-white/80 flex items-center gap-1.5"
+            @click="router.push('/')"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/></svg>
+            방문 민원
+          </button>
+          <button
+            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors text-white/60 hover:text-white/80 flex items-center gap-1.5"
+            @click="router.push('/online')"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+            온라인 민원
+          </button>
+          <button
+            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors bg-white text-slate-900 shadow-sm flex items-center gap-1.5"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            AI 챗봇
+          </button>
+        </div>
+      </div>
+
+      <div class="relative page-gutter pt-1 pb-8">
         <p class="text-[11px] uppercase tracking-[0.24em] text-white/45">AI Assistant</p>
         <h1 class="hero-copy mt-2 font-bold tracking-tight">민원 절차를 바로 물어보세요</h1>
         <p class="mt-3 max-w-[22rem] text-sm leading-6 text-white/70">

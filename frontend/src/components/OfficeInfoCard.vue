@@ -139,7 +139,7 @@ watch(() => props.office?.cso_sn, loadPhoneNumber, { immediate: true })
       <span class="inline-flex items-center text-sm font-semibold px-3.5 py-2 rounded-full"
         :class="office.nght_oper_yn === 'Y' ? 'bg-violet-50 text-violet-600' : 'bg-muted text-muted-foreground'">
         <Moon class="w-3.5 h-3.5 mr-1.5" />
-        {{ office.nght_oper_yn === 'Y' ? '야간 운영' : '야간 미운영' }}
+        {{ office.nght_oper_yn === 'Y' ? '야간 여권 운영' : '야간 미운영' }}
       </span>
       <span class="inline-flex items-center text-sm font-semibold px-3.5 py-2 rounded-full"
         :class="office.wknd_oper_yn === 'Y' ? 'bg-emerald-50 text-emerald-600' : 'bg-muted text-muted-foreground'">
