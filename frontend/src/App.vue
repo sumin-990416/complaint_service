@@ -13,7 +13,7 @@ const isMainTab = computed(() => ['home', 'online', 'chat'].includes(route.name)
     <div class="page-frame shadow-xl flex flex-col h-dvh">
 
       <div class="flex-shrink-0 relative z-50 bg-[#0f172a] overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-black/100 to-black/80" />
+        <div class="absolute inset-0 bg-gradient-to-b from-blue-600/30 via-sky-500/10 to-transparent" />
 
         <div class="relative flex h-5 items-center px-3">
           <button
@@ -70,9 +70,9 @@ const isMainTab = computed(() => ['home', 'online', 'chat'].includes(route.name)
 </template>
 
 <style scoped>
-/* 페이지 전환 페이드 효과 원리 적용 */
+/* 페이지 전환 페이드 아웃/인 효과 */
 .page-fade-enter-active, .page-fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 .page-fade-enter-from {
   opacity: 0;

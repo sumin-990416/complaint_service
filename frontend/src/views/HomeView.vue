@@ -332,7 +332,6 @@ function requestGeolocation() {
       updateUserLocationLabel(userPos.value)
     },
     (err) => {
-      // TIMEOUT(3)은 무시 — Safari는 권한 대화상자 표시 중에도 timeout이 흐름
       if (err.code === err.TIMEOUT) return
       if (!restoreUserPos()) locationStatus.value = 'denied'
       else updateUserLocationLabel(userPos.value)
@@ -355,7 +354,7 @@ onMounted(async () => {
 <template>
   <div class="relative w-full bg-background pb-16">
     <section class="relative overflow-hidden bg-[#0f172a] text-white">
-      <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-black/50"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-blue-600/30 via-sky-500/10 to-transparent"></div>
       <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background"></div>
 
       <div class="relative page-gutter pt-4 pb-12">

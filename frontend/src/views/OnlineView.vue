@@ -33,7 +33,6 @@ const filtered = computed(() => {
   })
 })
 
-// 카테고리별 SVG path
 const CATEGORY_ICON = {
   '주민등록/등본': '<path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"/>',
   '전입/가족관계': '<path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/>',
@@ -52,7 +51,7 @@ onMounted(loadCatalog)
 <template>
   <div class="flex flex-col bg-background">
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
-      <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-black/50"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-blue-600/30 via-sky-500/10 to-transparent" />
       <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background pointer-events-none"></div>
 
       <div class="relative page-gutter pt-3 pb-8">
@@ -65,10 +64,8 @@ onMounted(loadCatalog)
       </div>
     </section>
 
-    <!-- 검색 + 카테고리 필터 -->
     <div class="relative -mt-5 mx-4 z-10">
       <div class="rounded-[22px] border border-white/70 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.14)] px-4 py-4">
-        <!-- 검색 입력 -->
         <div class="relative">
           <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -82,7 +79,6 @@ onMounted(loadCatalog)
           />
         </div>
 
-        <!-- 카테고리 필터 -->
         <div class="mt-3 flex flex-wrap gap-1.5">
           <button
             v-for="cat in CATEGORIES"
@@ -99,7 +95,6 @@ onMounted(loadCatalog)
       </div>
     </div>
 
-    <!-- 서비스 카드 목록 -->
     <LoadingSpinner v-if="loading" text="서비스 목록 불러오는 중…" />
 
     <div v-else-if="!filtered.length" class="flex-1 flex flex-col items-center justify-center py-16 text-muted-foreground">
@@ -118,12 +113,10 @@ onMounted(loadCatalog)
         rel="noopener noreferrer"
         class="flex items-center gap-4 rounded-[20px] border border-slate-200 bg-white px-4 py-4 shadow-[0_4px_16px_rgba(15,23,42,0.06)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)] hover:border-primary/30 active:scale-[0.99] transition-all group"
       >
-        <!-- SVG 아이콘 -->
         <div class="w-12 h-12 flex-shrink-0 rounded-2xl bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" v-html="CATEGORY_ICON[item.category] ?? CATEGORY_ICON['기타']" />
         </div>
 
-        <!-- 내용 -->
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[15px] text-foreground leading-snug truncate">{{ item.label }}</p>
           <p class="mt-0.5 text-xs text-muted-foreground">{{ item.category }}</p>
@@ -135,13 +128,11 @@ onMounted(loadCatalog)
           </div>
         </div>
 
-        <!-- 화살표 -->
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-muted-foreground/40 group-hover:text-primary flex-shrink-0 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/>
         </svg>
       </a>
     </div>
-
 
   </div>
 </template>

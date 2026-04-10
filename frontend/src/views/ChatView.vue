@@ -2,7 +2,6 @@
 import { ref, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-
 const router = useRouter()
 const CATEGORY_STORAGE_KEY = 'minwon_now_category'
 const messages = ref([
@@ -40,7 +39,6 @@ async function send() {
   loading.value = true
   await scrollToBottom()
 
-  // 빈 assistant 메시지 자리 확보 (스트리밍)
   messages.value.push({ role: 'assistant', content: '', links: [] })
   const lastIdx = messages.value.length - 1
 
@@ -77,10 +75,10 @@ async function send() {
       }
     }
 
-    // 스트리밍 완료 후 정부24 신청 링크 조회
     try {
+      const reqCategory = selectedCategory.value
       const q = encodeURIComponent(
-        req.category && req.category !== '전체' ? `${req.category} ${text}` : text
+        reqCategory && reqCategory !== '전체' ? `${reqCategory} ${text}` : text
       )
       const linksRes = await fetch(`/api/chat/gov24-links?q=${q}`)
       const links = await linksRes.json()
@@ -119,7 +117,7 @@ onMounted(() => {
 <template>
   <div class="flex flex-col h-full bg-background">
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
-      <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-black/50"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-blue-600/30 via-sky-500/10 to-transparent"></div>
       <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background pointer-events-none"></div>
 
       <div class="relative page-gutter pt-3 pb-8">
@@ -168,7 +166,6 @@ onMounted(() => {
         :key="i"
         :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']"
       >
-        <!-- AI 아이콘 -->
         <div v-if="msg.role === 'assistant'" class="w-8 h-8 rounded-2xl bg-slate-950 flex items-center justify-center text-[11px] font-semibold text-white flex-shrink-0 mt-1 mr-2 shadow-sm">
           AI
         </div>
@@ -189,7 +186,6 @@ onMounted(() => {
           <span v-else>{{ msg.content }}</span>
         </div>
 
-        <!-- 정부24 신청 링크 (assistant 답변에만, 링크가 있을 때) -->
         <div
           v-if="msg.role === 'assistant' && msg.links?.length"
           class="mt-2 ml-10 flex flex-wrap gap-2"
