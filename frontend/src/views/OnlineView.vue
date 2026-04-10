@@ -55,10 +55,10 @@ onMounted(loadCatalog)
       <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background pointer-events-none"></div>
 
       <div class="relative page-gutter pt-3 pb-8">
-        <p class="text-[11px] uppercase tracking-[0.24em] text-blue-600 font-bold">Online Application</p>
-        <h1 class="hero-copy mt-2 font-bold tracking-tight text-slate-900">민원을 집에서 처리하세요</h1>
-        <p class="mt-3 text-sm leading-7 text-slate-700">
-          정부24에서 <span class="font-semibold text-blue-600">본인인증</span> 후 신청할 수 있습니다.<br>
+        <p class="text-[11px] uppercase tracking-[0.24em] text-sky-300 font-semibold drop-shadow-sm">Online Application</p>
+        <h1 class="hero-copy mt-2 font-bold tracking-tight text-white drop-shadow-md">민원을 집에서 처리하세요</h1>
+        <p class="mt-3 text-sm leading-7 text-white/90 drop-shadow-sm">
+          정부24에서 <span class="font-semibold text-sky-300">본인인증</span> 후 신청할 수 있습니다.<br>
           일부 민원은 방문이 필요합니다.
         </p>
       </div>
