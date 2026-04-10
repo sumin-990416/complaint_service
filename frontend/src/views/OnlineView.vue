@@ -10,6 +10,7 @@ const catalog = ref([])
 const loading = ref(true)
 const searchQuery = ref('')
 const selectedCategory = ref('전체')
+const showNotice = ref(true)
 
 const CATEGORIES = ['전체', '주민등록/등본', '전입/가족관계', '여권', '인감/증명', '운전면허', '토지/부동산', '세금/납세', '병역']
 
@@ -46,11 +47,41 @@ const CATEGORY_EMOJI = {
   '기타': '📄',
 }
 
-onMounted(loadCatalog)
+onMounted(() => {
+  loadCatalog()
+  setTimeout(() => { showNotice.value = false }, 10000)
+})
 </script>
 
 <template>
   <div class="flex flex-col min-h-dvh bg-background safe-bottom">
+    <!-- 상단 안내 토스트 -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 -translate-y-3"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-500 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-3"
+    >
+      <div
+        v-if="showNotice"
+        class="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
+      >
+        <div class="flex items-center gap-2.5 rounded-2xl bg-slate-900/90 backdrop-blur px-4 py-3 shadow-[0_8px_32px_rgba(15,23,42,0.28)] text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-sky-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          <p class="text-xs leading-relaxed flex-1">정부24에서 <span class="font-semibold text-sky-300">본인인증</span> 후 신청할 수 있습니다. 일부 민원은 방문이 필요합니다.</p>
+          <button class="ml-1 text-white/40 hover:text-white/80 transition-colors" @click="showNotice = false">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </Transition>
+
     <!-- 헤더 -->
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.32),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(59,110,248,0.16),_transparent_18%)]" />
@@ -125,7 +156,7 @@ onMounted(loadCatalog)
       <p class="text-sm">검색 결과가 없습니다</p>
     </div>
 
-    <div v-else class="px-4 pt-4 pb-24 grid grid-cols-1 gap-3">
+    <div v-else class="px-4 pt-4 pb-8 grid grid-cols-1 gap-3">
       <a
         v-for="item in filtered"
         :key="item.code"
@@ -158,14 +189,6 @@ onMounted(loadCatalog)
       </a>
     </div>
 
-    <!-- 하단 안내 -->
-    <div class="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none">
-      <div class="pointer-events-auto rounded-[18px] border border-slate-200 bg-white/90 backdrop-blur px-4 py-3 shadow-sm flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
-        </svg>
-        <p class="text-xs text-muted-foreground leading-relaxed">정부24에서 본인인증 후 신청할 수 있습니다. 일부 민원은 방문이 필요합니다.</p>
-      </div>
-    </div>
+
   </div>
 </template>
