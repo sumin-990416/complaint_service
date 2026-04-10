@@ -13,7 +13,7 @@ const isMainTab = computed(() => ['home', 'online', 'chat'].includes(route.name)
     <div class="page-frame shadow-xl flex flex-col h-dvh">
 
       <div class="flex-shrink-0 relative z-50 bg-[#0f172a] overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-blue-600/40 to-blue-600/20" />
+        <div class="absolute inset-0 bg-gradient-to-b from-blue-600/40 to-blue-600/20 pointer-events-none" />
 
         <div class="relative flex h-5 items-center px-3">
           <button
