@@ -35,6 +35,7 @@ const realtimeLoading = ref(false)
 const error = ref(null)
 const userPos = ref(null)
 const prediction = ref(null)
+const gov24Links = ref([])
 
 function parseTimeToMinutes(value) {
   if (!value || value.length < 4) return null
@@ -137,11 +138,19 @@ async function load() {
 
   realtimeLoading.value = true
   await fetchRealtime(office.value.stdg_cd)
-    .then(data => {
+    .then(async data => {
       // 해당 민원실 항목만, 업무명 없는 항목 제외
       realtime.value = data.items.filter(
         item => item.cso_sn === office.value.cso_sn && item.task_nm?.trim()
       )
+      // 실시간 업무명을 쿼리로 삼아 정부24 신청 링크 조회
+      if (realtime.value.length) {
+        const q = encodeURIComponent(realtime.value.map(r => r.task_nm).join(' '))
+        try {
+          const res = await fetch(`/api/chat/gov24-links?q=${q}`)
+          gov24Links.value = await res.json()
+        } catch { /* silent */ }
+      }
     })
     .catch(() => {})
     .finally(() => { realtimeLoading.value = false })
@@ -232,10 +241,34 @@ onMounted(load)
           <p class="text-sm text-muted-foreground">추후 업데이트 예정입니다</p>
         </div>
 
-        <div v-else class="px-4 pb-20 flex flex-col gap-3">
+        <div v-else class="px-4 pb-6 flex flex-col gap-3">
           <QueueCard v-for="item in realtime" :key="item.task_no" :item="item" />
         </div>
       </template>
+
+      <!-- 정부24 온라인 신청 링크 -->
+      <div v-if="gov24Links.length" class="mx-4 mb-8 mt-1 overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
+        <div class="px-4 py-3.5 border-b border-slate-100">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/60">Online Application</p>
+          <h3 class="mt-1 font-bold text-base text-foreground">정부24에서 바로 신청</h3>
+          <p class="mt-0.5 text-xs text-muted-foreground">방문 없이 온라인으로도 처리할 수 있는 민원을 확인하세요.</p>
+        </div>
+        <div class="px-4 py-4 flex flex-col gap-2">
+          <a
+            v-for="link in gov24Links"
+            :key="link.url"
+            :href="link.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 hover:bg-primary/10 transition-colors group"
+          >
+            <span class="text-sm font-semibold text-primary">{{ link.label }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
     </template>
   </div>
 </template>

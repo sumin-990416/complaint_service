@@ -41,7 +41,7 @@ async function send() {
   await scrollToBottom()
 
   // 빈 assistant 메시지 자리 확보 (스트리밍)
-  messages.value.push({ role: 'assistant', content: '' })
+  messages.value.push({ role: 'assistant', content: '', links: [] })
   const lastIdx = messages.value.length - 1
 
   try {
@@ -76,6 +76,16 @@ async function send() {
         } catch { /* skip malformed */ }
       }
     }
+
+    // 스트리밍 완료 후 정부24 신청 링크 조회
+    try {
+      const q = encodeURIComponent(
+        req.category && req.category !== '전체' ? `${req.category} ${text}` : text
+      )
+      const linksRes = await fetch(`/api/chat/gov24-links?q=${q}`)
+      const links = await linksRes.json()
+      if (links.length) messages.value[lastIdx].links = links
+    } catch { /* silent */ }
   } catch {
     messages.value[lastIdx].content = '⚠ 오류가 발생했어요. 잠시 후 다시 시도해 주세요.'
   } finally {
@@ -176,6 +186,26 @@ onMounted(() => {
             <span class="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:300ms]" />
           </span>
           <span v-else>{{ msg.content }}</span>
+        </div>
+
+        <!-- 정부24 신청 링크 (assistant 답변에만, 링크가 있을 때) -->
+        <div
+          v-if="msg.role === 'assistant' && msg.links?.length"
+          class="mt-2 ml-10 flex flex-wrap gap-2"
+        >
+          <a
+            v-for="link in msg.links"
+            :key="link.url"
+            :href="link.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            {{ link.label }} — 정부24 신청
+          </a>
         </div>
       </div>
     </div>
