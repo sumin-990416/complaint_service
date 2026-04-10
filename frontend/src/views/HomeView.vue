@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchOffices, geocodeAddress } from '../api/index.js'
-import AppHeader from '../components/AppHeader.vue'
+
 import AddressSearch from '../components/AddressSearch.vue'
 import OfficeMap from '../components/OfficeMap.vue'
 import OfficeCard from '../components/OfficeCard.vue'
@@ -60,24 +60,17 @@ function getRadiusTone(radius) {
 }
 
 function lockBodyScroll() {
-  bodyLockScrollY = window.scrollY || window.pageYOffset || 0
-  document.body.style.position = 'fixed'
-  document.body.style.top = `-${bodyLockScrollY}px`
-  document.body.style.left = '0'
-  document.body.style.right = '0'
-  document.body.style.width = '100%'
-  document.body.style.overflow = 'hidden'
+  const container = document.querySelector('.app-scroll-container')
+  if (!container) return
+  bodyLockScrollY = container.scrollTop
+  container.style.overflow = 'hidden'
 }
 
 function unlockBodyScroll() {
-  const scrollY = Math.abs(parseInt(document.body.style.top || '0', 10)) || bodyLockScrollY
-  document.body.style.position = ''
-  document.body.style.top = ''
-  document.body.style.left = ''
-  document.body.style.right = ''
-  document.body.style.width = ''
-  document.body.style.overflow = ''
-  window.scrollTo({ top: scrollY, behavior: 'auto' })
+  const container = document.querySelector('.app-scroll-container')
+  if (!container) return
+  container.style.overflow = ''
+  container.scrollTop = bodyLockScrollY
 }
 
 function officeSearchText(office) {
@@ -360,40 +353,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="relative min-h-dvh w-full bg-background safe-bottom pb-32">
+  <div class="relative w-full bg-background pb-16">
     <section class="relative overflow-hidden bg-[#0f172a] text-white">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,110,248,0.38),_transparent_38%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.16),_transparent_22%)]"></div>
       <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-background"></div>
 
-      <AppHeader title="" />
-
-      <!-- 모드 토글 -->
-      <div class="relative page-gutter pt-2 pb-1 flex justify-center">
-        <div class="inline-flex items-center rounded-full bg-white/10 p-1 gap-1">
-          <button
-            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors bg-white text-slate-900 shadow-sm flex items-center gap-1.5"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/></svg>
-            방문 민원
-          </button>
-          <button
-            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors text-white/60 hover:text-white/80 flex items-center gap-1.5"
-            @click="router.push('/online')"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
-            온라인 민원
-          </button>
-          <button
-            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors text-white/60 hover:text-white/80 flex items-center gap-1.5"
-            @click="router.push('/chat')"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-            AI 챗봇
-          </button>
-        </div>
-      </div>
-
-      <div class="relative page-gutter pt-2 pb-12">
+      <div class="relative page-gutter pt-4 pb-12">
         <div class="mt-1 flex items-center gap-2.5">
           <h1 class="hero-brand text-white font-bold drop-shadow-[0_10px_30px_rgba(15,23,42,0.5)] tracking-tight">민원새길</h1>
         </div>

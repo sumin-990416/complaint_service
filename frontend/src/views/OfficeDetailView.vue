@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchOffice, fetchRealtime } from '../api/index.js'
-import AppHeader from '../components/AppHeader.vue'
+
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import OfficeInfoCard from '../components/OfficeInfoCard.vue'
 import OfficeMap from '../components/OfficeMap.vue'
@@ -160,16 +160,11 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="flex flex-col min-h-dvh bg-background safe-bottom">
+  <div class="flex flex-col min-h-full bg-background">
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,110,248,0.34),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(14,165,233,0.18),_transparent_18%)]"></div>
-      <AppHeader
-        :title="headerTitle"
-        :show-back="true"
-        @back="router.back()"
-      />
 
-      <div v-if="office" class="relative page-gutter pt-3 pb-12">
+      <div v-if="office" class="relative page-gutter pt-4 pb-12">
         <p class="text-[11px] uppercase tracking-[0.22em] text-white/45">Office Detail</p>
         <h1 class="hero-copy mt-2 font-bold tracking-tight break-keep">{{ office.cso_nm }}</h1>
         <p class="mt-3 max-w-[22rem] text-sm leading-6 text-white/70">
