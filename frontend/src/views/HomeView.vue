@@ -365,7 +365,7 @@ onMounted(async () => {
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,110,248,0.38),_transparent_38%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.16),_transparent_22%)]"></div>
       <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-background"></div>
 
-      <AppHeader title="민원새길" />
+      <AppHeader title="" />
 
       <!-- 모드 토글 -->
       <div class="relative page-gutter pt-2 pb-1">
