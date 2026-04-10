@@ -383,15 +383,22 @@ onMounted(async () => {
             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
             온라인 민원
           </button>
+          <button
+            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors text-white/60 hover:text-white/80 flex items-center gap-1.5"
+            @click="router.push('/chat')"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            AI 챗봇
+          </button>
         </div>
       </div>
 
-      <div class="relative page-gutter pt-2 pb-12 text-center">
-        <div class="mt-1 flex items-center justify-center gap-2.5">
+      <div class="relative page-gutter pt-2 pb-12">
+        <div class="mt-1 flex items-center gap-2.5">
           <h1 class="hero-brand text-white font-bold drop-shadow-[0_10px_30px_rgba(15,23,42,0.5)] tracking-tight">민원새길</h1>
         </div>
 
-        <div class="mt-3 flex items-center justify-center gap-2 flex-wrap">
+        <div class="mt-3 flex items-center gap-2 flex-wrap">
           <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
             <span class="h-2 w-2 rounded-full" :class="heroStatus.dot"></span>
             {{ heroStatus.text }}
@@ -404,7 +411,7 @@ onMounted(async () => {
 
         <div class="mt-5 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
           <div class="rounded-[16px] border border-white/10 bg-white/8 px-4 py-3 text-white/90">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">Step 1 · 민원 종류</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 text-left">Step 1 · 민원 종류</p>
             <div class="mt-2.5 flex flex-wrap gap-2">
               <button
                 v-for="category in CATEGORIES"
@@ -422,7 +429,7 @@ onMounted(async () => {
         </div>
 
         <div class="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 px-5">  Step 2 · 시/도/군 선택 (위치 미허용시)</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 px-3 pb-1.5 text-left">Step 2 · 시/도/군 선택 (위치 미허용시)</p>
           <div class="rounded-[16px] bg-white/96 p-1.5">
             <AddressSearch
               :loading="searchLoading"
