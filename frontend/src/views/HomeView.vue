@@ -365,7 +365,7 @@ onMounted(async () => {
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,110,248,0.38),_transparent_38%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.16),_transparent_22%)]"></div>
       <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-background"></div>
 
-      <AppHeader title="민원나우" />
+      <AppHeader title="민원새길" />
 
       <!-- 모드 토글 -->
       <div class="relative page-gutter pt-2 pb-1">
@@ -386,7 +386,7 @@ onMounted(async () => {
 
       <div class="relative page-gutter pt-2 pb-12">
         <div class="mt-1 flex items-end gap-2.5">
-          <h1 class="brand-display hero-brand text-white drop-shadow-[0_10px_30px_rgba(15,23,42,0.45)]">민원나우</h1>
+          <h1 class="brand-display hero-brand text-white drop-shadow-[0_10px_30px_rgba(15,23,42,0.45)]">민원새길</h1>
           <span class="mb-1 inline-flex items-center rounded-full bg-[#7dd3fc]/18 px-2.5 py-1 text-[11px] font-semibold text-sky-200 ring-1 ring-inset ring-white/10">Beta</span>
         </div>
 

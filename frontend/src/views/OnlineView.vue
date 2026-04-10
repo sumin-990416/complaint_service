@@ -10,7 +10,6 @@ const catalog = ref([])
 const loading = ref(true)
 const searchQuery = ref('')
 const selectedCategory = ref('전체')
-const showNotice = ref(true)
 
 const CATEGORIES = ['전체', '주민등록/등본', '전입/가족관계', '여권', '인감/증명', '운전면허', '토지/부동산', '세금/납세', '병역']
 
@@ -47,41 +46,11 @@ const CATEGORY_EMOJI = {
   '기타': '📄',
 }
 
-onMounted(() => {
-  loadCatalog()
-  setTimeout(() => { showNotice.value = false }, 10000)
-})
+onMounted(loadCatalog)
 </script>
 
 <template>
   <div class="flex flex-col min-h-dvh bg-background safe-bottom">
-    <!-- 상단 안내 토스트 -->
-    <Transition
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0 -translate-y-3"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition-all duration-500 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-3"
-    >
-      <div
-        v-if="showNotice"
-        class="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
-      >
-        <div class="flex items-center gap-2.5 rounded-2xl bg-slate-900/90 backdrop-blur px-4 py-3 shadow-[0_8px_32px_rgba(15,23,42,0.28)] text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-sky-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
-          </svg>
-          <p class="text-xs leading-relaxed flex-1">정부24에서 <span class="font-semibold text-sky-300">본인인증</span> 후 신청할 수 있습니다. 일부 민원은 방문이 필요합니다.</p>
-          <button class="ml-1 text-white/40 hover:text-white/80 transition-colors" @click="showNotice = false">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </Transition>
-
     <!-- 헤더 -->
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.32),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(59,110,248,0.16),_transparent_18%)]" />
@@ -108,7 +77,7 @@ onMounted(() => {
         <p class="text-[11px] uppercase tracking-[0.24em] text-white/45">Online Application</p>
         <h1 class="hero-copy mt-2 font-bold tracking-tight">민원을 집에서 처리하세요</h1>
         <p class="mt-3 max-w-[22rem] text-sm leading-6 text-white/70">
-          정부24를 통해 방문 없이 온라인으로 신청할 수 있는 민원 서비스를 한눈에 확인하세요.
+          정부24에서 <span class="font-semibold text-sky-300">본인인증</span> 후 신청할 수 있습니다. 일부 민원은 방문이 필요합니다.
         </p>
       </div>
     </section>
