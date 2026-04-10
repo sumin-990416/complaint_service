@@ -117,7 +117,7 @@ onMounted(() => {
 <template>
   <div class="flex flex-col h-full bg-background">
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
-      <div class="absolute inset-0 bg-gradient-to-b from-blue-600/30 via-sky-500/10 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-blue-600/40 to-blue-600/20"></div>
       <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background pointer-events-none"></div>
 
       <div class="relative page-gutter pt-3 pb-8">
