@@ -359,23 +359,23 @@ onMounted(async () => {
 
       <div class="relative page-gutter pt-4 pb-12">
         <div class="mt-1 flex items-center gap-2.5">
-          <h1 class="hero-brand text-white font-bold drop-shadow-[0_10px_30px_rgba(15,23,42,0.5)] tracking-tight">민원새길</h1>
+          <h1 class="hero-brand text-white font-bold drop-shadow-[0_10px_30px_rgba(15,23,42,0.8)] tracking-tight">민원새길</h1>
         </div>
 
         <div class="mt-3 flex items-center gap-2 flex-wrap">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm shadow-sm">
             <span class="h-2 w-2 rounded-full" :class="heroStatus.dot"></span>
             {{ heroStatus.text }}
           </span>
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-            <span class="text-white/55">민원실</span>
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm shadow-sm">
+            <span class="text-white/80">민원실</span>
             {{ officeCountLabel }}
           </span>
         </div>
 
         <div class="mt-5 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
           <div class="rounded-[16px] border border-white/10 bg-white/8 px-4 py-3 text-white/90">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 text-left">Step 1 · 민원 종류</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200 drop-shadow-sm text-left">Step 1 · 민원 종류</p>
             <div class="mt-2.5 flex flex-wrap gap-2">
               <button
                 v-for="category in CATEGORIES"
@@ -383,7 +383,7 @@ onMounted(async () => {
                 class="tap-feedback rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors"
                 :class="selectedCategory === category
                   ? 'bg-white text-slate-950 shadow-[0_6px_18px_rgba(255,255,255,0.16)]'
-                  : 'bg-white/10 text-white/78 hover:bg-white/18 active:bg-white/20'"
+                  : 'bg-white/10 text-white/90 hover:bg-white/18 active:bg-white/20'"
                 @click="saveCategory(category)"
               >
                 {{ category }}
@@ -393,7 +393,7 @@ onMounted(async () => {
         </div>
 
         <div class="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 px-3 pb-1.5 text-left">Step 2 · 시/도/군 선택 (위치 미허용시)</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200 drop-shadow-sm px-3 pb-1.5 text-left">Step 2 · 시/도/군 선택 (위치 미허용시)</p>
           <div class="rounded-[16px] bg-white/96 p-1.5">
             <AddressSearch
               :loading="searchLoading"
