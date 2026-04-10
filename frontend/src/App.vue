@@ -30,7 +30,7 @@ const headerGradient = computed(() => {
         <div class="absolute inset-0" :style="{ background: headerGradient, transition: 'background 0.5s ease' }" />
 
         <!-- Status-bar row: back button for detail, empty spacer otherwise -->
-        <div class="relative flex h-14 items-center px-3">
+        <div class="relative flex h-5 items-center px-3">
           <button
             v-if="route.name === 'office-detail'"
             class="w-9 h-9 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10 active:bg-white/20 transition-colors"
