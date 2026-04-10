@@ -6,30 +6,15 @@ const route = useRoute()
 const router = useRouter()
 
 const isMainTab = computed(() => ['home', 'online', 'chat'].includes(route.name))
-
-const headerGradient = computed(() => {
-  switch (route.name) {
-    case 'online':
-      return 'radial-gradient(circle at top left, rgba(14,165,233,0.32), transparent 34%), radial-gradient(circle at top right, rgba(59,110,248,0.16), transparent 18%)'
-    case 'chat':
-      return 'radial-gradient(circle at top left, rgba(59,110,248,0.34), transparent 34%), radial-gradient(circle at top right, rgba(14,165,233,0.18), transparent 18%)'
-    case 'office-detail':
-      return 'radial-gradient(circle at top left, rgba(59,110,248,0.34), transparent 34%), radial-gradient(circle at top right, rgba(14,165,233,0.18), transparent 18%)'
-    default:
-      return 'radial-gradient(circle at top left, rgba(59,110,248,0.38), transparent 38%), radial-gradient(circle at top right, rgba(16,185,129,0.16), transparent 22%)'
-  }
-})
 </script>
 
 <template>
   <div class="app-shell relative">
     <div class="page-frame shadow-xl flex flex-col h-dvh">
 
-      <!-- ── Persistent dark header ── -->
       <div class="flex-shrink-0 relative z-50 bg-[#0f172a] overflow-hidden">
-        <div class="absolute inset-0" :style="{ background: headerGradient, transition: 'background 0.5s ease' }" />
+        <div class="absolute inset-0 bg-gradient-to-b from-black/100 to-black/80" />
 
-        <!-- Status-bar row: back button for detail, empty spacer otherwise -->
         <div class="relative flex h-5 items-center px-3">
           <button
             v-if="route.name === 'office-detail'"
@@ -42,11 +27,10 @@ const headerGradient = computed(() => {
           </button>
         </div>
 
-        <!-- Tab toggle (main tabs only) -->
         <div v-if="isMainTab" class="relative flex justify-center pb-2">
           <div class="inline-flex items-center rounded-full bg-white/10 p-1 gap-1">
             <button
-              class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5"
+              class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 active:scale-95"
               :class="route.name === 'home' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/60 hover:text-white/80'"
               @click="route.name !== 'home' && router.push('/')"
             >
@@ -54,7 +38,7 @@ const headerGradient = computed(() => {
               방문 민원
             </button>
             <button
-              class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5"
+              class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 active:scale-95"
               :class="route.name === 'online' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/60 hover:text-white/80'"
               @click="route.name !== 'online' && router.push('/online')"
             >
@@ -62,7 +46,7 @@ const headerGradient = computed(() => {
               온라인 민원
             </button>
             <button
-              class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5"
+              class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 active:scale-95"
               :class="route.name === 'chat' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/60 hover:text-white/80'"
               @click="route.name !== 'chat' && router.push('/chat')"
             >
@@ -73,11 +57,29 @@ const headerGradient = computed(() => {
         </div>
       </div>
 
-      <!-- ── Page content (scrollable) ── -->
-      <div class="app-scroll-container flex-1 overflow-y-auto bg-background safe-bottom">
-        <RouterView />
+      <div class="app-scroll-container flex-1 overflow-y-auto bg-background safe-bottom relative">
+        <RouterView v-slot="{ Component }">
+          <transition name="page-fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </RouterView>
       </div>
 
     </div>
   </div>
 </template>
+
+<style scoped>
+/* 페이지 전환 페이드 효과 원리 적용 */
+.page-fade-enter-active, .page-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(5px);
+}
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+</style>

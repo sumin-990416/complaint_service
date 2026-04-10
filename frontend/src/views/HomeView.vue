@@ -355,7 +355,7 @@ onMounted(async () => {
 <template>
   <div class="relative w-full bg-background pb-16">
     <section class="relative overflow-hidden bg-[#0f172a] text-white">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,110,248,0.38),_transparent_38%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.16),_transparent_22%)]"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-black/50"></div>
       <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background"></div>
 
       <div class="relative page-gutter pt-4 pb-12">
