@@ -54,6 +54,7 @@ onMounted(loadCatalog)
     <!-- 헤더 -->
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.32),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(59,110,248,0.16),_transparent_18%)]" />
+      <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background pointer-events-none"></div>
 
       <div class="relative page-gutter pt-3 pb-8">
         <p class="text-[11px] uppercase tracking-[0.24em] text-white/45">Online Application</p>

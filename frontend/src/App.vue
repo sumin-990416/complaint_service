@@ -75,11 +75,7 @@ const headerGradient = computed(() => {
 
       <!-- ── Page content (scrollable) ── -->
       <div class="app-scroll-container flex-1 overflow-y-auto bg-background safe-bottom">
-        <RouterView v-slot="{ Component }">
-          <Transition name="page-fade" mode="out-in">
-            <component :is="Component" :key="route.fullPath" />
-          </Transition>
-        </RouterView>
+        <RouterView />
       </div>
 
     </div>

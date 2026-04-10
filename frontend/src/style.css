@@ -115,13 +115,4 @@
   }
 }
 
-/* ── 페이지 트랜지션 ── */
-.page-fade-enter-active,
-.page-fade-leave-active {
-  transition: opacity 0.18s ease;
-}
-.page-fade-enter-from,
-.page-fade-leave-to {
-  opacity: 0;
-}
 
