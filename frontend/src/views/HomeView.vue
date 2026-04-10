@@ -367,6 +367,23 @@ onMounted(async () => {
 
       <AppHeader title="민원나우" />
 
+      <!-- 모드 토글 -->
+      <div class="relative page-gutter pt-2 pb-1">
+        <div class="inline-flex items-center rounded-full bg-white/10 p-1 gap-1">
+          <button
+            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors bg-white text-slate-900 shadow-sm"
+          >
+            🏢 방문 민원
+          </button>
+          <button
+            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors text-white/60 hover:text-white/80"
+            @click="router.push('/online')"
+          >
+            🌐 온라인 민원
+          </button>
+        </div>
+      </div>
+
       <div class="relative page-gutter pt-2 pb-12">
         <div class="mt-1 flex items-end gap-2.5">
           <h1 class="brand-display hero-brand text-white drop-shadow-[0_10px_30px_rgba(15,23,42,0.45)]">민원나우</h1>

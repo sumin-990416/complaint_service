@@ -96,6 +96,60 @@ _CODE_NAMES: dict[str, str] = {
 
 _GOV24_BASE = "https://www.gov.kr/mw/AA020InfoCappView.do"
 
+# CappBizCD → 카테고리
+_CODE_CATEGORIES: dict[str, str] = {
+    "13100000015": "주민등록/등본",
+    "13100000014": "주민등록/등본",
+    "13100000010": "주민등록/등본",
+    "13100000011": "주민등록/등본",
+    "13100000016": "전입/가족관계",
+    "13100000025": "인감/증명",
+    "13100000021": "인감/증명",
+    "12600000001": "여권",
+    "12600000019": "여권",
+    "13200000030": "운전면허",
+    "13200000029": "운전면허",
+    "13200000053": "운전면허",
+    "13200000054": "운전면허",
+    "13200000049": "운전면허",
+    "13200000034": "운전면허",
+    "13100000026": "토지/부동산",
+    "13100000056": "세금/납세",
+    "12100000011": "세금/납세",
+    "13000000016": "병역",
+    "13000000007": "병역",
+}
+
+# 카테고리별 온라인 신청 가능 여부 (정부24 인터넷 신청 지원 항목)
+_CODE_ONLINE_AVAILABLE: set[str] = {
+    "13100000015",  # 주민등록등(초)본
+    "13100000025",  # 인감증명서
+    "13100000026",  # 토지(임야)대장
+    "13100000056",  # 지방세 납세증명
+    "12100000011",  # 국세 납세증명
+    "13000000016",  # 병적증명서
+    "13200000049",  # 운전경력증명서
+    "13200000034",  # 교통사고확인원
+}
+
+
+def get_full_catalog() -> list[dict[str, str]]:
+    """정부24 온라인 신청 가능 민원 전체 카탈로그를 반환."""
+    seen: set[str] = set()
+    result = []
+    for code, name in _CODE_NAMES.items():
+        if code in seen:
+            continue
+        seen.add(code)
+        result.append({
+            "code": code,
+            "label": name,
+            "category": _CODE_CATEGORIES.get(code, "기타"),
+            "online_available": code in _CODE_ONLINE_AVAILABLE,
+            "url": f"{_GOV24_BASE}?CappBizCD={code}",
+        })
+    return result
+
 
 def get_gov24_links(query: str) -> list[dict[str, str]]:
     """쿼리에서 키워드를 추출해 정부24 신청 링크 목록을 반환 (HTTP 요청 없음)."""

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from backend import crud
 from backend.config import settings
 from backend.database import AsyncSessionLocal
-from backend.services.gov24_scraper import search_gov24, get_gov24_links
+from backend.services.gov24_scraper import search_gov24, get_gov24_links, get_full_catalog
 from backend.services.rag import search_manual
 
 router = APIRouter(prefix="/chat", tags=["chatbot"])
@@ -104,6 +104,12 @@ async def gov24_links(q: str = ""):
     if not q:
         return []
     return get_gov24_links(q)
+
+
+@router.get("/gov24-catalog")
+async def gov24_catalog():
+    """정부24 온라인 신청 민원 전체 카탈로그를 반환."""
+    return get_full_catalog()
 
 
 @router.post("/stream")
