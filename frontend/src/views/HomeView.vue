@@ -355,7 +355,8 @@ onMounted(async () => {
   <div class="relative w-full bg-background pb-16">
     <section class="relative overflow-hidden bg-[#0f172a] text-white">
       <div class="absolute inset-0 bg-gradient-to-b from-blue-600/20 to-transparent"></div>
-      <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background"></div>
+      
+      <div class="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b from-transparent to-background"></div>
 
       <div class="relative page-gutter pt-4 pb-12">
         <div class="mt-1 flex items-center gap-2.5">
@@ -368,14 +369,14 @@ onMounted(async () => {
             {{ heroStatus.text }}
           </span>
           <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm shadow-sm">
-            <span class="text-white/80">민원실</span>
+            <span class="text-white/90">민원실</span>
             {{ officeCountLabel }}
           </span>
         </div>
 
         <div class="mt-5 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
           <div class="rounded-[16px] border border-white/10 bg-white/8 px-4 py-3 text-white/90">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200 drop-shadow-sm text-left">Step 1 · 민원 종류</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-300 drop-shadow-sm text-left">Step 1 · 민원 종류</p>
             <div class="mt-2.5 flex flex-wrap gap-2">
               <button
                 v-for="category in CATEGORIES"
@@ -393,7 +394,7 @@ onMounted(async () => {
         </div>
 
         <div class="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200 drop-shadow-sm px-3 pb-1.5 text-left">Step 2 · 시/도/군 선택 (위치 미허용시)</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-300 drop-shadow-sm px-3 pb-1.5 text-left">Step 2 · 시/도/군 선택 (위치 미허용시)</p>
           <div class="rounded-[16px] bg-white/96 p-1.5">
             <AddressSearch
               :loading="searchLoading"
