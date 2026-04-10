@@ -180,7 +180,7 @@ onMounted(async () => {
       v-if="mapError"
       class="absolute inset-0 flex items-center justify-center bg-slate-100 text-sm text-destructive p-4 text-center"
     >
-      ⚠️ {{ mapError }}
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 inline-block mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>{{ mapError }}
     </div>
     <!-- 잠금 토글 버튼 -->
     <button

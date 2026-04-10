@@ -473,7 +473,7 @@ onMounted(async () => {
           <p class="text-xs font-semibold uppercase tracking-[0.18em] text-amber-600">위치 권한 필요</p>
           <h2 class="mt-1.5 text-base font-bold text-foreground">위치 권한을 허용해주세요!</h2>
           <p class="mt-1 text-sm leading-5 text-muted-foreground">
-            주소창 옆 <strong>자물쇠(🔒)</strong>를 탭해 <strong>위치 → 허용</strong>으로 바꾼 뒤 다시 시도해 주세요.
+            주소창 옆 <strong>자물쇠(<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 inline-block align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>)</strong>를 탭해 <strong>위치 → 허용</strong>으로 바꾼 뒤 다시 시도해 주세요.
           </p>
           <button
             class="tap-feedback mt-3 inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white shadow-sm"

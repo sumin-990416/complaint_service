@@ -94,9 +94,9 @@ function telHref(phone) {
 }
 
 const NAV_MODES = [
-  { mode: 'walk', label: '도보', emoji: '🚶' },
-  { mode: 'car',  label: '자차', emoji: '🚗' },
-  { mode: 'bus',  label: '대중교통', emoji: '🚌' },
+  { mode: 'walk', label: '도보', svgPath: '<path stroke-linecap="round" stroke-linejoin="round" d="M13 4a1 1 0 11-2 0 1 1 0 012 0zm-1 3l-3 4h2v6h2v-6h2l-3-4z"/>' },
+  { mode: 'car',  label: '자차', svgPath: '<path stroke-linecap="round" stroke-linejoin="round" d="M5 17H3v-5l2.5-5h11L19 12v5h-2m-1 0a2 2 0 11-4 0 2 2 0 014 0zm-8 0a2 2 0 11-4 0 2 2 0 014 0z"/>' },
+  { mode: 'bus',  label: '대중교통', svgPath: '<path stroke-linecap="round" stroke-linejoin="round" d="M8 6v6m0 0v6m0-6h8m0 0V6m0 6v6M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"/>' },
 ]
 
 watch(() => props.office?.cso_sn, loadPhoneNumber, { immediate: true })
@@ -156,14 +156,14 @@ watch(() => props.office?.cso_sn, loadPhoneNumber, { immediate: true })
       <p class="text-sm font-semibold text-foreground mb-3">길찾기</p>
       <div class="grid grid-cols-3 gap-2.5">
         <a
-          v-for="{ mode, label, emoji } in NAV_MODES"
+          v-for="{ mode, label, svgPath } in NAV_MODES"
           :key="mode"
           :href="kakaoNavUrl(mode)"
           target="_blank"
           rel="noopener noreferrer"
           class="flex flex-col items-center gap-2 py-4 rounded-2xl bg-slate-50 hover:bg-primary-light hover:shadow-sm active:scale-95 transition-all cursor-pointer"
         >
-          <span class="text-3xl">{{ emoji }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" v-html="svgPath" />
           <span class="text-sm font-semibold text-foreground">{{ label }}</span>
         </a>
       </div>

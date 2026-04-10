@@ -8,7 +8,7 @@ const CATEGORY_STORAGE_KEY = 'minwon_now_category'
 const messages = ref([
   {
     role: 'assistant',
-    content: '안녕하세요! 민원실 이용 관련 궁금한 점을 물어보세요 😊\n예) "출생신고는 어디서 하나요?" "여권 발급에 필요한 서류가 뭐예요?"',
+    content: '안녕하세요! 민원실 이용 관련 궁금한 점을 물어보세요.\n예) "출생신고는 어디서 하나요?" "여권 발급에 필요한 서류가 뭐예요?"',
   },
 ])
 const input = ref('')
@@ -87,7 +87,7 @@ async function send() {
       if (links.length) messages.value[lastIdx].links = links
     } catch { /* silent */ }
   } catch {
-    messages.value[lastIdx].content = '⚠ 오류가 발생했어요. 잠시 후 다시 시도해 주세요.'
+    messages.value[lastIdx].content = '오류가 발생했어요. 잠시 후 다시 시도해 주세요.'
   } finally {
     loading.value = false
     await scrollToBottom()
