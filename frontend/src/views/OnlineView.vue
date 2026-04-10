@@ -76,8 +76,9 @@ onMounted(loadCatalog)
       <div class="relative page-gutter pt-1 pb-8">
         <p class="text-[11px] uppercase tracking-[0.24em] text-white/45">Online Application</p>
         <h1 class="hero-copy mt-2 font-bold tracking-tight">민원을 집에서 처리하세요</h1>
-        <p class="mt-3 max-w-[22rem] text-sm leading-6 text-white/70">
-          정부24에서 <span class="font-semibold text-sky-300">본인인증</span> 후 신청할 수 있습니다. 일부 민원은 방문이 필요합니다.
+        <p class="mt-3 text-sm leading-7 text-white/70">
+          정부24에서 <span class="font-semibold text-sky-300">본인인증</span> 후 신청할 수 있습니다.<br>
+          일부 민원은 방문이 필요합니다.
         </p>
       </div>
     </section>

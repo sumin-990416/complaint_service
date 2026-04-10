@@ -385,9 +385,9 @@ onMounted(async () => {
       </div>
 
       <div class="relative page-gutter pt-2 pb-12">
-        <div class="mt-1 flex items-end gap-2.5">
-          <h1 class="brand-display hero-brand text-white drop-shadow-[0_10px_30px_rgba(15,23,42,0.45)]">민원새길</h1>
-          <span class="mb-1 inline-flex items-center rounded-full bg-[#7dd3fc]/18 px-2.5 py-1 text-[11px] font-semibold text-sky-200 ring-1 ring-inset ring-white/10">Beta</span>
+        <div class="mt-1 flex items-center gap-2.5">
+          <h1 class="brand-display hero-brand text-white drop-shadow-[0_10px_30px_rgba(15,23,42,0.5)] tracking-tight">민원새길</h1>
+          <span class="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-semibold text-white/70 tracking-widest uppercase">Beta</span>
         </div>
 
         <div class="mt-3 flex items-center gap-2 flex-wrap">
