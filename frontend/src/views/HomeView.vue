@@ -368,7 +368,7 @@ onMounted(async () => {
       <AppHeader title="" />
 
       <!-- 모드 토글 -->
-      <div class="relative page-gutter pt-2 pb-1">
+      <div class="relative page-gutter pt-2 pb-1 flex justify-center">
         <div class="inline-flex items-center rounded-full bg-white/10 p-1 gap-1">
           <button
             class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors bg-white text-slate-900 shadow-sm"
@@ -384,13 +384,12 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="relative page-gutter pt-2 pb-12">
-        <div class="mt-1 flex items-center gap-2.5">
-          <h1 class="brand-display hero-brand text-white drop-shadow-[0_10px_30px_rgba(15,23,42,0.5)] tracking-tight">민원새길</h1>
-          <span class="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-semibold text-white/70 tracking-widest uppercase">Beta</span>
+      <div class="relative page-gutter pt-2 pb-12 text-center">
+        <div class="mt-1 flex items-center justify-center gap-2.5">
+          <h1 class="hero-brand text-white font-bold drop-shadow-[0_10px_30px_rgba(15,23,42,0.5)] tracking-tight">민원새길</h1>
         </div>
 
-        <div class="mt-3 flex items-center gap-2 flex-wrap">
+        <div class="mt-3 flex items-center justify-center gap-2 flex-wrap">
           <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
             <span class="h-2 w-2 rounded-full" :class="heroStatus.dot"></span>
             {{ heroStatus.text }}

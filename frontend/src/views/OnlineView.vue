@@ -54,7 +54,7 @@ onMounted(loadCatalog)
     <!-- 헤더 -->
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.32),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(59,110,248,0.16),_transparent_18%)]" />
-      <AppHeader title="온라인 민원 신청" />
+      <AppHeader title="" />
 
       <!-- 모드 토글 -->
       <div class="relative page-gutter pt-2 pb-2">
