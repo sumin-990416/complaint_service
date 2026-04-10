@@ -57,18 +57,20 @@ onMounted(loadCatalog)
       <AppHeader title="" />
 
       <!-- 모드 토글 -->
-      <div class="relative page-gutter pt-2 pb-2">
+      <div class="relative page-gutter pt-2 pb-2 flex justify-center">
         <div class="inline-flex items-center rounded-full bg-white/10 p-1 gap-1">
           <button
-            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors text-white/60 hover:text-white/80"
+            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors text-white/60 hover:text-white/80 flex items-center gap-1.5"
             @click="router.push('/')"
           >
-            🏢 방문 민원
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/></svg>
+            방문 민원
           </button>
           <button
-            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors bg-white text-slate-900 shadow-sm"
+            class="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors bg-white text-slate-900 shadow-sm flex items-center gap-1.5"
           >
-            🌐 온라인 민원
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+            온라인 민원
           </button>
         </div>
       </div>
