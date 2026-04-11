@@ -93,9 +93,11 @@ async def _stream_openrouter(messages: list[dict]) -> AsyncGenerator[str, None]:
                     yield f"data: {chunk}\n\n"
 
 
+
 class ChatRequest(BaseModel):
     messages: list[dict]  # [{"role": "user"/"assistant", "content": "..."}]
     category: str | None = None
+    userPos: dict | None = None  # {"lat": float, "lng": float}
 
 
 @router.get("/gov24-links")
@@ -110,6 +112,7 @@ async def gov24_links(q: str = ""):
 async def gov24_catalog():
     """정부24 온라인 신청 민원 전체 카탈로그를 반환."""
     return get_full_catalog()
+
 
 
 @router.post("/stream")
@@ -129,6 +132,14 @@ async def chat_stream(req: ChatRequest):
         asyncio.to_thread(search_manual, search_query),
         search_gov24(search_query),
     )
+
+    # 위치 정보 안내 및 프롬프트에 반영
+    if req.userPos and isinstance(req.userPos, dict) and 'lat' in req.userPos and 'lng' in req.userPos:
+        lat = req.userPos['lat']
+        lng = req.userPos['lng']
+        system_content += f"\n\n[사용자 위치]\n- 위도: {lat}, 경도: {lng}\n- 반드시 이 위치에서 가까운 민원실을 우선 추천하세요."
+    else:
+        system_content += "\n\n[위치 정보 없음]\n- 사용자의 위치 정보를 알 수 없습니다. 위치 권한을 안내하거나, 위치 설정 방법을 친절하게 알려주세요."
 
     if req.category:
         system_content += (

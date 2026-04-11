@@ -2,6 +2,7 @@
 import { ref, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
+
 const router = useRouter()
 const CATEGORY_STORAGE_KEY = 'minwon_now_category'
 const messages = ref([
@@ -14,6 +15,7 @@ const input = ref('')
 const loading = ref(false)
 const scrollEl = ref(null)
 const selectedCategory = ref('전체')
+const userPos = ref(null)
 
 const CATEGORIES = [
   '전체',
@@ -25,14 +27,44 @@ const CATEGORIES = [
   '사업/세무',
 ]
 
+onMounted(() => {
+  // 라우터 state에서 위치 정보 받아오기
+  if (window.history.state && window.history.state.userPos) {
+    userPos.value = window.history.state.userPos
+  } else {
+    // 세션스토리지에서 복구 시도 (홈에서 저장된 값 활용)
+    const raw = sessionStorage.getItem('minwon_now_user_pos')
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw)
+        if (typeof parsed?.lat === 'number' && typeof parsed?.lng === 'number') {
+          userPos.value = parsed
+        }
+      } catch {}
+    }
+  }
+})
+
 async function scrollToBottom() {
   await nextTick()
   if (scrollEl.value) scrollEl.value.scrollTop = scrollEl.value.scrollHeight
 }
 
+
 async function send() {
   const text = input.value.trim()
   if (!text || loading.value) return
+
+  // 위치 정보가 없으면 안내 메시지
+  if (!userPos.value) {
+    messages.value.push({
+      role: 'assistant',
+      content: '현재 위치 정보를 알 수 없습니다. 위치 권한을 허용하거나, 메인 화면에서 위치를 설정해 주세요.',
+    })
+    input.value = ''
+    await scrollToBottom()
+    return
+  }
 
   messages.value.push({ role: 'user', content: text })
   input.value = ''
@@ -49,6 +81,7 @@ async function send() {
       body: JSON.stringify({
         messages: messages.value.slice(1, -1).map(m => ({ role: m.role, content: m.content })),
         category: selectedCategory.value === '전체' ? null : selectedCategory.value,
+        userPos: userPos.value,
       }),
     })
 
