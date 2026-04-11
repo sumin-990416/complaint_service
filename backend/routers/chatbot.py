@@ -97,6 +97,7 @@ async def _stream_openrouter(messages: list[dict]) -> AsyncGenerator[str, None]:
 class ChatRequest(BaseModel):
     messages: list[dict]  # [{"role": "user"/"assistant", "content": "..."}]
     category: str | None = None
+    useLocation: bool = False
     userPos: dict | None = None  # {"lat": float, "lng": float}
 
 
@@ -133,13 +134,12 @@ async def chat_stream(req: ChatRequest):
         search_gov24(search_query),
     )
 
-    # 위치 정보가 있을 때만 위치 기반 안내 프롬프트 추가
-    if req.userPos and isinstance(req.userPos, dict) and 'lat' in req.userPos and 'lng' in req.userPos:
+    # 위치 정보 사용 여부에 따라 프롬프트 분기
+    if req.useLocation and req.userPos and isinstance(req.userPos, dict) and 'lat' in req.userPos and 'lng' in req.userPos:
         lat = req.userPos['lat']
         lng = req.userPos['lng']
         system_content += f"\n\n[사용자 위치]\n- 위도: {lat}, 경도: {lng}\n- 사용자가 위치 기반 안내(예: 인근 민원실, 가까운 기관 등)를 요청한 경우에만 이 위치를 참고하세요."
-    else:
-        system_content += "\n\n[위치 정보 없음]\n- 사용자가 위치 기반 안내(예: 인근 민원실, 가까운 기관 등)를 요청할 때만 위치 권한 허용 또는 위치 입력 방법을 안내하세요. 위치가 필요 없는 질문에는 안내하지 마세요."
+    # useLocation이 False이거나 위치 정보가 없으면 위치 관련 안내/추천 프롬프트를 추가하지 않음
 
     if req.category:
         system_content += (
