@@ -139,7 +139,11 @@ async def chat_stream(req: ChatRequest):
         lat = req.userPos['lat']
         lng = req.userPos['lng']
         system_content += f"\n\n[사용자 위치]\n- 위도: {lat}, 경도: {lng}\n- 사용자가 위치 기반 안내(예: 인근 민원실, 가까운 기관 등)를 요청한 경우에만 이 위치를 참고하세요."
-    # useLocation이 False이거나 위치 정보가 없으면 위치 관련 안내/추천 프롬프트를 추가하지 않음
+    elif req.useLocation:
+        # 위치 사용 요청이지만 좌표가 없으면 서울역(37.554674, 126.970611) 기준
+        lat = 37.554674
+        lng = 126.970611
+        system_content += f"\n\n[사용자 위치(임의값)]\n- 위도: {lat}, 경도: {lng}\n- 실제 위치 정보가 없어 임의의 위치(서울역)를 기준으로 안내합니다. 이 위치는 사용자의 실제 위치가 아닐 수 있습니다."
 
     if req.category:
         system_content += (

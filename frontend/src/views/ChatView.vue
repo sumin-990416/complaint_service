@@ -221,7 +221,7 @@ onMounted(() => {
 
         <div
           v-if="msg.role === 'assistant' && msg.links?.length"
-          class="mt-2 ml-10 flex flex-wrap gap-2"
+          class="mt-3 flex flex-col gap-2 items-start"
         >
           <a
             v-for="link in msg.links"
