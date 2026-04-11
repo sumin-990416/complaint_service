@@ -231,7 +231,7 @@ onMounted(() => {
       </div>
 
       <!-- 채팅 하단에만 버튼 노출 -->
-      <div v-if="lastAssistantLinks.length" class="w-full flex flex-col gap-2 items-start mt-4 mb-2">
+      <div v-if="lastAssistantLinks.length" class="max-w-[78%] ml-[3.5rem] flex flex-col gap-2 items-start mt-4 mb-2">
         <a
           v-for="link in lastAssistantLinks"
           :key="link.url"
