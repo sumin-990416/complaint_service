@@ -202,7 +202,6 @@ onMounted(() => {
         <div v-if="msg.role === 'assistant'" class="w-8 h-8 rounded-2xl bg-slate-950 flex items-center justify-center text-[11px] font-semibold text-white flex-shrink-0 mt-1 mr-2 shadow-sm">
           AI
         </div>
-
         <div
           :class="[
             'max-w-[78%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap',
@@ -218,26 +217,39 @@ onMounted(() => {
           </span>
           <span v-else>{{ msg.content }}</span>
         </div>
-
-        <div
-          v-if="msg.role === 'assistant' && msg.links?.length"
-          class="mt-3 flex flex-col gap-2 items-start"
-        >
-          <a
-            v-for="link in msg.links"
-            :key="link.url"
-            :href="link.url"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/10 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-            {{ link.label }} — 정부24 신청
-          </a>
-        </div>
       </div>
+
+      <!-- 채팅 하단에만 버튼 노출 -->
+      <div v-if="lastAssistantLinks.length" class="w-full flex flex-col gap-2 items-start mt-4 mb-2">
+        <a
+          v-for="link in lastAssistantLinks"
+          :key="link.url"
+          :href="link.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          {{ link.label }} — 정부24 신청
+        </a>
+      </div>
+    <script setup>
+    // ...existing code...
+
+    // 가장 최근 assistant 메시지의 links만 추출
+    import { computed } from 'vue'
+    const lastAssistantLinks = computed(() => {
+      for (let i = messages.value.length - 1; i >= 0; i--) {
+        const msg = messages.value[i]
+        if (msg.role === 'assistant' && Array.isArray(msg.links) && msg.links.length) {
+          return msg.links
+        }
+      }
+      return []
+    })
+    </script>
     </div>
 
     <div class="border-t border-slate-200/80 bg-white/90 backdrop-blur px-4 py-3 flex gap-2 items-end">
