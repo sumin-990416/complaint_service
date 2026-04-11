@@ -1,7 +1,7 @@
-<script setup>
-import { ref, nextTick, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 
+<script setup>
+import { ref, nextTick, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const CATEGORY_STORAGE_KEY = 'minwon_now_category'
@@ -26,6 +26,17 @@ const CATEGORIES = [
   '건축/인허가',
   '사업/세무',
 ]
+
+// 가장 최근 assistant 메시지의 links만 추출
+const lastAssistantLinks = computed(() => {
+  for (let i = messages.value.length - 1; i >= 0; i--) {
+    const msg = messages.value[i]
+    if (msg.role === 'assistant' && Array.isArray(msg.links) && msg.links.length) {
+      return msg.links
+    }
+  }
+  return []
+})
 
 onMounted(() => {
   // 라우터 state에서 위치 정보 받아오기
