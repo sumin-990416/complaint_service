@@ -133,13 +133,13 @@ async def chat_stream(req: ChatRequest):
         search_gov24(search_query),
     )
 
-    # 위치 정보 안내 및 프롬프트에 반영
+    # 위치 정보가 있을 때만 위치 기반 안내 프롬프트 추가
     if req.userPos and isinstance(req.userPos, dict) and 'lat' in req.userPos and 'lng' in req.userPos:
         lat = req.userPos['lat']
         lng = req.userPos['lng']
-        system_content += f"\n\n[사용자 위치]\n- 위도: {lat}, 경도: {lng}\n- 반드시 이 위치에서 가까운 민원실을 우선 추천하세요."
+        system_content += f"\n\n[사용자 위치]\n- 위도: {lat}, 경도: {lng}\n- 사용자가 위치 기반 안내(예: 인근 민원실, 가까운 기관 등)를 요청한 경우에만 이 위치를 참고하세요."
     else:
-        system_content += "\n\n[위치 정보 없음]\n- 사용자의 위치 정보를 알 수 없습니다. 위치 권한을 안내하거나, 위치 설정 방법을 친절하게 알려주세요."
+        system_content += "\n\n[위치 정보 없음]\n- 사용자가 위치 기반 안내(예: 인근 민원실, 가까운 기관 등)를 요청할 때만 위치 권한 허용 또는 위치 입력 방법을 안내하세요. 위치가 필요 없는 질문에는 안내하지 마세요."
 
     if req.category:
         system_content += (
