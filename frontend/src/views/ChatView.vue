@@ -66,17 +66,6 @@ async function send() {
   const text = input.value.trim()
   if (!text || loading.value) return
 
-  // 위치 정보가 없으면 안내 메시지
-  if (!userPos.value) {
-    messages.value.push({
-      role: 'assistant',
-      content: '현재 위치 정보를 알 수 없습니다. 위치 권한을 허용하거나, 메인 화면에서 위치를 설정해 주세요.',
-    })
-    input.value = ''
-    await scrollToBottom()
-    return
-  }
-
   messages.value.push({ role: 'user', content: text })
   input.value = ''
   loading.value = true
@@ -92,7 +81,7 @@ async function send() {
       body: JSON.stringify({
         messages: messages.value.slice(1, -1).map(m => ({ role: m.role, content: m.content })),
         category: selectedCategory.value === '전체' ? null : selectedCategory.value,
-        userPos: userPos.value,
+        location: userPos.value ?? null,
       }),
     })
 
