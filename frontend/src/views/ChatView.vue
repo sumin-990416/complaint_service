@@ -189,7 +189,6 @@ const currentSuggestionsText = computed(() => {
     return arr.join(' | '); 
   }
   return '출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.';
-  
 });
 
 onMounted(scrollToBottom)
@@ -226,11 +225,22 @@ onMounted(() => {
             :class="selectedCategory === category
               ? 'bg-slate-950 text-white shadow-sm'
               : 'bg-slate-100 text-slate-700 hover:bg-primary-light hover:text-primary'"
-            @click="selectedCategory = category"
+            @click="onCategoryChange(category)"
           >
             {{ category }}
           </button>
         </div>
+        import { watch } from 'vue'
+
+        function onCategoryChange(category) {
+          selectedCategory.value = category
+          // 안내문구/예시 즉시 반영 및 UX 개선을 위해 스크롤 등 추가 동작 필요시 여기에 작성
+        }
+
+        // 카테고리 변경 시 안내문구/예시가 즉시 반영되는지 확인용 watch (불필요시 제거 가능)
+        watch(selectedCategory, () => {
+          // 필요시 추가 동작 (예: 스크롤, 포커스 등)
+        })
         <p class="mt-2 text-[11px] text-muted-foreground">
           선택한 카테고리 기준으로만 기관/민원실 추천을 안내합니다.
         </p>
