@@ -1,4 +1,3 @@
-
 <script setup>
 import { ref, nextTick, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -27,7 +26,55 @@ const CATEGORIES = [
   '사업/세무',
 ]
 
-// 가장 최근 assistant 메시지의 links만 추출
+const SUGGESTIONS = {
+  '전체': [
+    '출생신고는 어디서 하나요?',
+    '여권 발급 필요 서류가 뭐예요?',
+    '주민등록등본 발급 방법 알려주세요',
+    '야간에도 운영하는 민원실이 있나요?',
+  ],
+  '주민등록/등본': [
+    '주민등록등본 발급 방법 알려주세요',
+    '주민등록초본은 어디서 발급받나요?',
+    '주민등록 정정 절차가 궁금해요',
+  ],
+  '전입/가족관계': [
+    '전입신고는 어디서 하나요?',
+    '가족관계증명서 발급 방법 알려주세요',
+    '전입신고에 필요한 서류가 뭐예요?',
+  ],
+  '여권': [
+    '여권 발급 필요 서류가 뭐예요?',
+    '여권 재발급은 어떻게 하나요?',
+    '여권 기재사항 정정은 어디서 하나요?',
+  ],
+  '인감/증명': [
+    '인감증명서 발급 방법 알려주세요',
+    '인감신고는 어디서 하나요?',
+    '인감증명서에 필요한 서류가 궁금해요',
+  ],
+  '건축/인허가': [
+    '건축허가 신청 절차가 궁금해요',
+    '인허가 관련 서류는 무엇인가요?',
+    '건축 인허가 어디서 하나요?',
+  ],
+  '사업/세무': [
+    '사업자등록은 어디서 하나요?',
+    '세무 관련 민원은 어디서 처리하나요?',
+    '사업자등록에 필요한 서류가 뭐예요?',
+  ],
+}
+
+const currentSuggestions = computed(() => {
+  return SUGGESTIONS[selectedCategory.value] || SUGGESTIONS['전체']
+})
+
+const currentSuggestionsText = computed(() => {
+  const arr = currentSuggestions.value
+  if (arr && arr.length) return arr.join(' | ')
+  return '출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.'
+})
+
 const lastAssistantLinks = computed(() => {
   for (let i = messages.value.length - 1; i >= 0; i--) {
     const msg = messages.value[i]
@@ -39,11 +86,9 @@ const lastAssistantLinks = computed(() => {
 })
 
 onMounted(() => {
-  // 라우터 state에서 위치 정보 받아오기
   if (window.history.state && window.history.state.userPos) {
     userPos.value = window.history.state.userPos
   } else {
-    // 세션스토리지에서 복구 시도 (홈에서 저장된 값 활용)
     const raw = sessionStorage.getItem('minwon_now_user_pos')
     if (raw) {
       try {
@@ -60,7 +105,6 @@ async function scrollToBottom() {
   await nextTick()
   if (scrollEl.value) scrollEl.value.scrollTop = scrollEl.value.scrollHeight
 }
-
 
 async function send() {
   const text = input.value.trim()
@@ -132,65 +176,6 @@ function onKeydown(e) {
   }
 }
 
-
-// 1. 상수 데이터 객체 분리 정의
-const SUGGESTIONS = {
-  '전체': [
-    '출생신고는 어디서 하나요?',
-    '여권 발급 필요 서류가 뭐예요?',
-    '주민등록등본 발급 방법 알려주세요',
-    '야간에도 운영하는 민원실이 있나요?'
-  ],
-  '주민등록/등본': [
-    '주민등록등본 발급 방법 알려주세요',
-    '주민등록초본은 어디서 발급받나요?',
-    '주민등록 정정 절차가 궁금해요'
-  ],
-  '전입/가족관계': [
-    '전입신고는 어디서 하나요?',
-    '가족관계증명서 발급 방법 알려주세요',
-    '전입신고에 필요한 서류가 뭐예요?'
-  ],
-  '여권': [
-    '여권 발급 필요 서류가 뭐예요?',
-    '여권 재발급은 어떻게 하나요?',
-    '여권 기재사항 정정은 어디서 하나요?'
-  ],
-  '인감/증명': [
-    '인감증명서 발급 방법 알려주세요',
-    '인감신고는 어디서 하나요?',
-    '인감증명서에 필요한 서류가 궁금해요'
-  ],
-  '건축/인허가': [
-    '건축허가 신청 절차가 궁금해요',
-    '인허가 관련 서류는 무엇인가요?',
-    '건축 인허가 어디서 하나요?'
-  ],
-  '사업/세무': [
-    '사업자등록은 어디서 하나요?',
-    '세무 관련 민원은 어디서 처리하나요?',
-    '사업자등록에 필요한 서류가 뭐예요?'
-  ]
-};
-
-// 선택된 카테고리를 관리하는 반응형 변수 (예시)
-const selectedCategory = ref('전체');
-
-// 2. 카테고리별 예시 질문 computed (객체 외부에서 선언)
-const currentSuggestions = computed(() => {
-  return SUGGESTIONS[selectedCategory.value] || SUGGESTIONS['전체'];
-});
-
-// 3. 상단 안내문구 computed (Array.join을 활용한 로직 최적화)
-const currentSuggestionsText = computed(() => {
-  const arr = currentSuggestions.value;
-  if (arr && arr.length) {
-    // map을 사용하지 않고 join 만으로 더 간결하게 처리할 수 있습니다.
-    return arr.join(' | '); 
-  }
-  return '출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.';
-});
-
 onMounted(scrollToBottom)
 onMounted(() => {
   const stored = sessionStorage.getItem(CATEGORY_STORAGE_KEY)
@@ -203,7 +188,6 @@ onMounted(() => {
   <div class="flex flex-col h-full bg-background">
     <section class="relative overflow-hidden bg-[#0f172a] text-white flex-shrink-0">
       <div class="absolute inset-0 bg-gradient-to-b from-blue-600/20 to-transparent"></div>
-      
 
       <div class="relative page-gutter pt-3 pb-8">
         <p class="text-[11px] uppercase tracking-[0.24em] text-sky-300 font-semibold drop-shadow-sm">AI Assistant</p>
@@ -225,22 +209,11 @@ onMounted(() => {
             :class="selectedCategory === category
               ? 'bg-slate-950 text-white shadow-sm'
               : 'bg-slate-100 text-slate-700 hover:bg-primary-light hover:text-primary'"
-            @click="onCategoryChange(category)"
+            @click="selectedCategory = category"
           >
             {{ category }}
           </button>
         </div>
-        import { watch } from 'vue'
-
-        function onCategoryChange(category) {
-          selectedCategory.value = category
-          // 안내문구/예시 즉시 반영 및 UX 개선을 위해 스크롤 등 추가 동작 필요시 여기에 작성
-        }
-
-        // 카테고리 변경 시 안내문구/예시가 즉시 반영되는지 확인용 watch (불필요시 제거 가능)
-        watch(selectedCategory, () => {
-          // 필요시 추가 동작 (예: 스크롤, 포커스 등)
-        })
         <p class="mt-2 text-[11px] text-muted-foreground">
           선택한 카테고리 기준으로만 기관/민원실 추천을 안내합니다.
         </p>
@@ -282,7 +255,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- 채팅 하단에만 버튼 노출 -->
       <div v-if="lastAssistantLinks.length" class="max-w-[78%] ml-[3.5rem] flex flex-col gap-2 items-start mt-4 mb-2">
         <a
           v-for="link in lastAssistantLinks"
@@ -298,21 +270,6 @@ onMounted(() => {
           {{ link.label }} — 정부24 신청
         </a>
       </div>
-    <script setup>
-    // ...existing code...
-
-    // 가장 최근 assistant 메시지의 links만 추출
-    import { computed } from 'vue'
-    const lastAssistantLinks = computed(() => {
-      for (let i = messages.value.length - 1; i >= 0; i--) {
-        const msg = messages.value[i]
-        if (msg.role === 'assistant' && Array.isArray(msg.links) && msg.links.length) {
-          return msg.links
-        }
-      }
-      return []
-    })
-    </script>
     </div>
 
     <div class="border-t border-slate-200/80 bg-white/90 backdrop-blur px-4 py-3 flex gap-2 items-end">
