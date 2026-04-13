@@ -190,7 +190,14 @@ onMounted(() => {
         <p class="text-[11px] uppercase tracking-[0.24em] text-sky-300 font-semibold drop-shadow-sm">AI Assistant</p>
         <h1 class="hero-copy mt-2 font-bold tracking-tight text-white drop-shadow-md">민원 절차를 바로 물어보세요</h1>
         <p class="mt-3 max-w-[22rem] text-sm leading-6 text-white/90 drop-shadow-sm">
-          출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.
+          <template v-if="SUGGESTIONS[selectedCategory.value] && SUGGESTIONS[selectedCategory.value].length">
+            <span v-for="(s, idx) in SUGGESTIONS[selectedCategory.value]" :key="s">
+              {{ s }}<span v-if="idx < SUGGESTIONS[selectedCategory.value].length - 1">&nbsp;|&nbsp;</span>
+            </span>
+          </template>
+          <template v-else>
+            출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.
+          </template>
         </p>
       </div>
     </section>
