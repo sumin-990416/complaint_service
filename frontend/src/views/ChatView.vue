@@ -132,12 +132,45 @@ function onKeydown(e) {
   }
 }
 
-const SUGGESTIONS = [
-  '출생신고는 어디서 하나요?',
-  '여권 발급 필요 서류가 뭐예요?',
-  '주민등록등본 발급 방법 알려주세요',
-  '야간에도 운영하는 민원실이 있나요?',
-]
+
+const SUGGESTIONS = {
+  '전체': [
+    '출생신고는 어디서 하나요?',
+    '여권 발급 필요 서류가 뭐예요?',
+    '주민등록등본 발급 방법 알려주세요',
+    '야간에도 운영하는 민원실이 있나요?'
+  ],
+  '주민등록/등본': [
+    '주민등록등본 발급 방법 알려주세요',
+    '주민등록초본은 어디서 발급받나요?',
+    '주민등록 정정 절차가 궁금해요'
+  ],
+  '전입/가족관계': [
+    '전입신고는 어디서 하나요?',
+    '가족관계증명서 발급 방법 알려주세요',
+    '전입신고에 필요한 서류가 뭐예요?'
+  ],
+  '여권': [
+    '여권 발급 필요 서류가 뭐예요?',
+    '여권 재발급은 어떻게 하나요?',
+    '여권 기재사항 정정은 어디서 하나요?'
+  ],
+  '인감/증명': [
+    '인감증명서 발급 방법 알려주세요',
+    '인감신고는 어디서 하나요?',
+    '인감증명서에 필요한 서류가 궁금해요'
+  ],
+  '건축/인허가': [
+    '건축허가 신청 절차가 궁금해요',
+    '인허가 관련 서류는 무엇인가요?',
+    '건축 인허가 어디서 하나요?'
+  ],
+  '사업/세무': [
+    '사업자등록은 어디서 하나요?',
+    '세무 관련 민원은 어디서 처리하나요?',
+    '사업자등록에 필요한 서류가 뭐예요?'
+  ]
+}
 
 onMounted(scrollToBottom)
 onMounted(() => {
@@ -185,7 +218,7 @@ onMounted(() => {
 
       <div v-if="messages.length === 1" class="flex flex-wrap gap-2 mt-1">
         <button
-          v-for="s in SUGGESTIONS"
+          v-for="s in SUGGESTIONS[selectedCategory.value] || SUGGESTIONS['전체']"
           :key="s"
           class="text-xs px-3 py-1.5 rounded-full border border-white/70 bg-white text-foreground shadow-sm hover:bg-primary-light transition-colors"
           @click="input = s; send()"
