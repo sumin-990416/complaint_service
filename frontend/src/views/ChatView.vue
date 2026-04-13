@@ -189,6 +189,7 @@ const currentSuggestionsText = computed(() => {
     return arr.join(' | '); 
   }
   return '출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.';
+  
 });
 
 onMounted(scrollToBottom)
