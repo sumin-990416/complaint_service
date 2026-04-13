@@ -133,20 +133,8 @@ function onKeydown(e) {
 }
 
 
+// 1. 상수 데이터 객체 분리 정의
 const SUGGESTIONS = {
-  // 카테고리별 예시 질문 computed
-  const currentSuggestions = computed(() => {
-    return SUGGESTIONS[selectedCategory.value] || SUGGESTIONS['전체']
-  })
-
-  // 상단 안내문구 computed
-  const currentSuggestionsText = computed(() => {
-    const arr = currentSuggestions.value
-    if (arr && arr.length) {
-      return arr.map((s, idx) => `${s}${idx < arr.length - 1 ? ' | ' : ''}`).join('')
-    }
-    return '출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.'
-  })
   '전체': [
     '출생신고는 어디서 하나요?',
     '여권 발급 필요 서류가 뭐예요?',
@@ -183,7 +171,25 @@ const SUGGESTIONS = {
     '세무 관련 민원은 어디서 처리하나요?',
     '사업자등록에 필요한 서류가 뭐예요?'
   ]
-}
+};
+
+// 선택된 카테고리를 관리하는 반응형 변수 (예시)
+const selectedCategory = ref('전체');
+
+// 2. 카테고리별 예시 질문 computed (객체 외부에서 선언)
+const currentSuggestions = computed(() => {
+  return SUGGESTIONS[selectedCategory.value] || SUGGESTIONS['전체'];
+});
+
+// 3. 상단 안내문구 computed (Array.join을 활용한 로직 최적화)
+const currentSuggestionsText = computed(() => {
+  const arr = currentSuggestions.value;
+  if (arr && arr.length) {
+    // map을 사용하지 않고 join 만으로 더 간결하게 처리할 수 있습니다.
+    return arr.join(' | '); 
+  }
+  return '출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.';
+});
 
 onMounted(scrollToBottom)
 onMounted(() => {
