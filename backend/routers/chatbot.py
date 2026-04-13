@@ -93,12 +93,10 @@ async def _stream_openrouter(messages: list[dict]) -> AsyncGenerator[str, None]:
                     yield f"data: {chunk}\n\n"
 
 
-
 class ChatRequest(BaseModel):
     messages: list[dict]  # [{"role": "user"/"assistant", "content": "..."}]
     category: str | None = None
-    useLocation: bool = False
-    userPos: dict | None = None  # {"lat": float, "lng": float}
+    location: dict | None = None  # 예: {"lat": 37.5, "lng": 126.9}
 
 
 @router.get("/gov24-links")
@@ -115,7 +113,6 @@ async def gov24_catalog():
     return get_full_catalog()
 
 
-
 @router.post("/stream")
 async def chat_stream(req: ChatRequest):
     """스트리밍 응답 (SSE)"""
@@ -129,21 +126,17 @@ async def chat_stream(req: ChatRequest):
     if req.category:
         search_query = f"{req.category} {search_query}".strip()
 
+    # 위치 정보가 없으면 서울역 좌표를 기본값으로 사용
+    DEFAULT_LOCATION = {"lat": 37.5547, "lng": 126.9706}  # 서울역
+    user_location = req.location if req.location else DEFAULT_LOCATION
+
+    # 필요시 user_location을 downstream 함수에 전달하거나, system_content 등에 활용
+    # 예시: system_content += f"\n\n[사용자 위치] lat={user_location['lat']}, lng={user_location['lng']}"
+
     manual_chunks, gov24_ctx = await asyncio.gather(
         asyncio.to_thread(search_manual, search_query),
         search_gov24(search_query),
     )
-
-    # 위치 정보 사용 여부에 따라 프롬프트 분기
-    if req.useLocation and req.userPos and isinstance(req.userPos, dict) and 'lat' in req.userPos and 'lng' in req.userPos:
-        lat = req.userPos['lat']
-        lng = req.userPos['lng']
-        system_content += f"\n\n[사용자 위치]\n- 위도: {lat}, 경도: {lng}\n- 사용자가 위치 기반 안내(예: 인근 민원실, 가까운 기관 등)를 요청한 경우에만 이 위치를 참고하세요."
-    elif req.useLocation:
-        # 위치 사용 요청이지만 좌표가 없으면 서울역(37.554674, 126.970611) 기준
-        lat = 37.554674
-        lng = 126.970611
-        system_content += f"\n\n[사용자 위치(임의값)]\n- 위도: {lat}, 경도: {lng}\n- 실제 위치 정보가 없어 임의의 위치(서울역)를 기준으로 안내합니다. 이 위치는 사용자의 실제 위치가 아닐 수 있습니다."
 
     if req.category:
         system_content += (
