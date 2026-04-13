@@ -134,6 +134,19 @@ function onKeydown(e) {
 
 
 const SUGGESTIONS = {
+  // 카테고리별 예시 질문 computed
+  const currentSuggestions = computed(() => {
+    return SUGGESTIONS[selectedCategory.value] || SUGGESTIONS['전체']
+  })
+
+  // 상단 안내문구 computed
+  const currentSuggestionsText = computed(() => {
+    const arr = currentSuggestions.value
+    if (arr && arr.length) {
+      return arr.map((s, idx) => `${s}${idx < arr.length - 1 ? ' | ' : ''}`).join('')
+    }
+    return '출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.'
+  })
   '전체': [
     '출생신고는 어디서 하나요?',
     '여권 발급 필요 서류가 뭐예요?',
@@ -190,14 +203,7 @@ onMounted(() => {
         <p class="text-[11px] uppercase tracking-[0.24em] text-sky-300 font-semibold drop-shadow-sm">AI Assistant</p>
         <h1 class="hero-copy mt-2 font-bold tracking-tight text-white drop-shadow-md">민원 절차를 바로 물어보세요</h1>
         <p class="mt-3 max-w-[22rem] text-sm leading-6 text-white/90 drop-shadow-sm">
-          <template v-if="SUGGESTIONS[selectedCategory.value] && SUGGESTIONS[selectedCategory.value].length">
-            <span v-for="(s, idx) in SUGGESTIONS[selectedCategory.value]" :key="s">
-              {{ s }}<span v-if="idx < SUGGESTIONS[selectedCategory.value].length - 1">&nbsp;|&nbsp;</span>
-            </span>
-          </template>
-          <template v-else>
-            출생신고, 여권, 전입신고, 야간 운영 여부처럼 실제 방문 전에 필요한 정보를 빠르게 정리해 드립니다.
-          </template>
+          {{ currentSuggestionsText }}
         </p>
       </div>
     </section>
@@ -225,7 +231,7 @@ onMounted(() => {
 
       <div v-if="messages.length === 1" class="flex flex-wrap gap-2 mt-1">
         <button
-          v-for="s in SUGGESTIONS[selectedCategory.value] || SUGGESTIONS['전체']"
+          v-for="s in currentSuggestions"
           :key="s"
           class="text-xs px-3 py-1.5 rounded-full border border-white/70 bg-white text-foreground shadow-sm hover:bg-primary-light transition-colors"
           @click="input = s; send()"
