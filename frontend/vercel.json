@@ -9,7 +9,7 @@
       "destination": "${VITE_API_URL}/api/:path*"
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
