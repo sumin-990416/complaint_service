@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     openrouter_api_key: str = ""
     kakao_rest_key: str = ""
     vite_kakao_maps_key: str = ""
+    frontend_url: str = ""  # Vercel 프론트엔드 URL (CORS용)
 
     @property
     def kakao_key(self) -> str:

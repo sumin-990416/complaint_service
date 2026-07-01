@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import logging
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,6 +12,7 @@ from backend.services.scheduler import start_scheduler, scheduler
 from backend.services.ml_model import retrain as ml_retrain
 from backend import crud
 from backend.database import AsyncSessionLocal
+from backend.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +50,21 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+# CORS 설정: 환경 변수에서 허용할 origin 읽기
+frontend_url = settings.frontend_url or os.getenv("FRONTEND_URL", "http://localhost:5173")
+cors_origins = [
+    "http://localhost:5173",  # 개발 환경
+    "http://localhost:3000",
+    frontend_url,  # 프로덕션
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=cors_origins,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 app.include_router(offices.router, prefix="/api")
