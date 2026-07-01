@@ -12,6 +12,7 @@ RUN pip install uv
 
 # 프로젝트 파일 복사
 COPY pyproject.toml pyproject.toml
+COPY uv.lock uv.lock
 
 # 의존성 설치
 RUN uv sync
@@ -24,3 +25,4 @@ EXPOSE 8000
 
 # 앱 실행
 CMD ["uv", "run", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
