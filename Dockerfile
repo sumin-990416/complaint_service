@@ -22,5 +22,5 @@ COPY backend backend
 # 포트 노출
 EXPOSE 8000
 
-# 앱 실행
-CMD ["uv", "run", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 앱 실행 (PORT 환경변수 지원)
+CMD sh -c 'uv run uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}'
