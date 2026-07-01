@@ -14,7 +14,7 @@ RUN pip install uv
 COPY pyproject.toml pyproject.toml
 
 # 의존성 설치
-RUN uv sync --frozen
+RUN uv sync
 
 # 소스코드 복사
 COPY backend backend
